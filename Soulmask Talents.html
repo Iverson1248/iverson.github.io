@@ -35,59 +35,9 @@
 <div class="nav-container">
 <script src="https://saraserenity.net/soulmask/img/ng/nav.js"></script>
 <div class="nav-header">
-    <a href="https://saraserenity.net/soulmask"><img width="180" height="74" alt="Soulmask Guides" src="https://saraserenity.net/soulmask/img/ng/guidelogo_sm.webp"></a>
+    <a href="https://saraserenity.net/soulmask"><img width="180" height="74" alt="Soulmask Guides" src="https://saraserenity.net/soulmask/img/guidelogo_sm.webp"></a>
 </div>
-<ul class="nav-list">
-    <li><div class="nav-category" id="nav-map" onclick="toggleNavHeader(this)">Interactive Maps</div>
-        <ul>
-            <li><a href="https://saraserenity.net/soulmask/map?level=Level01_Main">Cloud Mist Forest</a></li>
-            <li><a href="https://saraserenity.net/soulmask/map?level=DLC_Level01_Main">Shifting Sands</a></li>
-        </ul>
-    </li>
-    <li><div class="nav-category" id="nav-data" onclick="toggleNavHeader(this)">Game Data</div>
-        <ul style="display: block;">
-            <li><a href="https://saraserenity.net/soulmask/natural_gift.php">Talents</a></li>
-            <li><a href="https://saraserenity.net/soulmask/proficiency.php">Proficiencies</a></li>
-            <li><a href="https://saraserenity.net/soulmask/attribute.php">Attributes</a></li>
-            <li><a href="https://saraserenity.net/soulmask/mastery.php">Weapon Mastery</a></li>
-            <li><a href="https://saraserenity.net/soulmask/body_paint.php">Body Paint</a></li>
-            <li><a href="https://saraserenity.net/soulmask/fashion.php">Fashion</a></li>
-            <li><a href="https://saraserenity.net/soulmask/item.php">Items</a></li>
-            <li><a href="https://saraserenity.net/soulmask/recipe.php">Recipes</a></li>
-            <li><a href="https://saraserenity.net/soulmask/npc.php">NPCs</a></li>
-            <li><a href="https://saraserenity.net/soulmask/event.php">Events</a></li>
-        </ul>
-    </li>
-    <li><div class="nav-category" id="nav-config" onclick="toggleNavHeader(this)">Game Configuration</div>
-        <ul>
-            <li><a href="https://saraserenity.net/soulmask/gameplay_settings_guide.php">Gameplay Settings Guide</a></li>
-            <li><a href="https://saraserenity.net/soulmask/gameplay_settings.php">Gameplay Settings</a></li>
-            <li><a href="https://saraserenity.net/soulmask/console_commands.php">Console Commands</a></li>
-            <li><a href="https://saraserenity.net/soulmask/building.php">Building Transfer</a></li>
-        </ul>
-    </li>
-    <li><div class="nav-category" id="nav-service" onclick="toggleNavHeader(this)">Service Monitoring</div>
-        <ul>
-            <li><a href="https://saraserenity.net/soulmask/server_status.php">Game Server Status</a></li>
-            <li><a href="https://saraserenity.net/soulmask/server_query.php">Server Query Tool</a></li>
-        </ul>
-    </li>
-    <li><div class="nav-category" id="nav-admin" onclick="toggleNavHeader(this)">Server Admin</div>
-        <ul>
-            <li><a href="https://saraserenity.net/soulmask/dedicated_server_guide.php">Dedicated Server Guide</a></li>
-            <li><a href="https://saraserenity.net/soulmask/server_permissions.php">Server Permissions</a></li>
-            <li><a href="https://saraserenity.net/soulmask/server_cluster_guide.php">Server Cluster Guide</a></li>
-            <li><a href="https://saraserenity.net/soulmask/remote_console.php">Remote Console</a></li>
-            <li><a href="https://saraserenity.net/soulmask/copyroles_tool.php">CopyRoles Tool</a></li>
-        </ul>
-    </li>
-    <li><div class="nav-category" id="nav-other" onclick="toggleNavHeader(this)">Other</div>
-        <ul>
-            <li><a href="https://saraserenity.net/soulmask/release_faq.php">Release FAQ</a></li>
-            <li><a href="https://saraserenity.net/soulmask/changes.php">Changes</a></li>
-        </ul>
-    </li>
-</ul>
+
 <hr>
 <div id="page_nav"><p class="page-nav-header"><a href="https://saraserenity.net/soulmask/natural_gift.php#">Talents</a></p>
 <ul class="nav-list">
@@ -118,84 +68,21 @@
 <div class="page-content">
 <div class="page-section">
     <h1 class="title">Soulmask Talents</h1>
-    <p>This document describes character talents.</p>
+    <p>本文描述了性格天賦。</p>
+	
+	<p>圖片轉文字：https://imagetotext.me/zh-Hant</p>
 
-    <h3 id="console_commands">Console Commands</h3>
-    <p>The following commands can modify the list of talents applied to a character (tribesman or starting character).</p>
-
-    <h5>Selecting a Character</h5>
-    <p>The <code>AddNg</code> and <code>RemoveNg</code> commands apply to the currently selected character. A character can be selected by targeting them and using the <code>Select</code> command. When using the command, the console will print a message indicating the selected character. You can use the <code>ClearSelect</code> command to deselect a previously selected character. If no character is selected, then the <code>AddNg</code> and <code>RemoveNg</code> commands will affect the controlled character instead.</p>
-    <p>Examples of selection commands.</p>
-    <pre>gm Select</pre>
-    <pre>gm ClearSelect</pre>
-
-    <h5>Adding a talent</h5>
-    <p><code>AddNG NGId[int] bGood[bool] InLvl[int]</code></p>
-    <p class="anno"><span class="strong">Target</span>: <span class="em">selected character</span></p>
-    <p>Adds the specified talent.</p>
-    <ul>
-        <li>NGId: The ID of the talent to add.</li>
-        <li>bGood: Specifies whether the talent should be set to good or bad
-            <ul>
-                <li>0: A bad talent that has a chance to be unlearned when leveling.</li>
-                <li>1: A good talent that will be permanent.</li>
-            </ul>
-        </li>
-        <li>InLvl: Specifies the character level that the talent would have been awarded. This has no impact on gameplay - the talent is granted immediately when using this command.</li>
-    </ul>
-
-    <p>NOTE: Any talent can be set as positive or negative using the <code>bGood</code> parameter. Talents that are set to negative have a chance to be removed automatically when the character reaches certain levels. Whether a talent is set to positive or negative does not affect what the talent actually does.</p>
-
-    <p>Following is an example of adding "Swift Pace 3" to the selected character.</p>
-    <pre>gm AddNG 100013 1 0</pre>
-
-    <h5>Removing a talent</h5>
-    <p><code>RemoveNG NGId[int] bGood[bool]</code></p>
-    <p class="anno"><span class="strong">Target</span>: <span class="em">selected character</span></p>
-    <p>Removes the specified talent.</p>
-    <ul>
-        <li>NGId: The ID of the talent to remove.</li>
-        <li>bGood: Specifies whether the talent is set to good or bad.
-            <ul>
-                <li>0: The talent is in the "negative" group.</li>
-                <li>1: The talent is in the "positive" group.</li>
-            </ul>
-        </li>
-    </ul>
-
-    <h5>Removing all talents</h5>
-    <p><code>ClearNG</code></p>
-    <p class="anno"><span class="strong">Target</span>: <span class="em">selected character</span></p>
-    <p>Removes all talents.</p>
-
-    <p>Following is an example of removing all talents from the selected character.</p>
-    <pre>gm ClearNG</pre>
-
-    <h5>Locating NPCs with a talent</h5>
-    <p><code>FindSCGLoc NGIndex[int] PinZ[int]</code></p>
-    <p class="anno"><span class="strong">Target</span>: <span class="em">current player (self)</span></p>
-    <p>Finds all wild NPCs which have the specified talent and the specified quality or higher and marks them on the current player's map.</p>
-    <ul>
-        <li>NGIndex: The ID of the talent to search for.</li>
-        <li>PinZ: The minimum quality NPC to search for.</li>
-    </ul>
-    <p>Example command usage. The following locates all NPCs with the "Swift Pace 3" talent who are at least quality <span class="quality-label"><img class="quality-icon" alt="Quality" src="https://saraserenity.net/soulmask/img/juesepinzhi5.webp"> 4</span>.</p>
-    <pre>gm FindSCGLoc 100013 4</pre>
-
-    <h1 id="talent_list">Talent List</h1>
-    <p>The following tables list all known talents and their associated IDs needed for the above mentioned console commands.</p>
-
-    <h2 id="positive_talents">Positive Talents</h2>
-    <p>The following tables list talents that have a generally positive or neutral effect on the character.</p>
+    <h2 id="positive_talents">正向天賦</h2>
+    <p>以下表格列出了對角色有整體正面或中性影響的天賦。</p>
 
     <h4 id="positive_normal">Source: 通用</h4>
     <table class="data-table">
         <thead>
             <tr>
-                <th colspan="3">IDs</th>
-                <th rowspan="2">Title</th>
-                <th rowspan="2">Description</th>
-                <th rowspan="2">Icon</th>
+                <th colspan="3">編號</th>
+                <th rowspan="2">名稱</th>
+                <th rowspan="2">說明</th>
+                <th rowspan="2">圖示</th>
             </tr>
             <tr>
                 <th style="white-space: nowrap">Level 1</th>
@@ -970,7 +857,7 @@
             <td>160692</td>
             <td>160693</td>
             <td><div class="title-data">Onslaught (Onslaught)</div></td>
-            <td class="desc-data">[Warrior 專屬] Unleash a ferocious offense to suppress the 敵人. Depleting a target's 韌性 will also remove their Superarmor. 攻擊速度 +10% for 12 秒 與 gains 耐力 if 傷害 per hit &gt; 5% of target's Max 生命值. (CD: [60,45,30]s)</td>
+            <td class="desc-data">【戰士專屬】 Unleash a ferocious offense to suppress the 敵人. Depleting a target's 韌性 will also remove their Superarmor. 攻擊速度 +10% for 12 秒 與 gains 耐力 if 傷害 per hit &gt; 5% of target's Max 生命值. (CD: [60,45,30]s)</td>
             <td><div class="hover-img-container"><img class="hover-img" width="32" height="32" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/tianfu__menggong.webp"><div class="popover-container" style="left: 44px; top: -51px;"><img class="popover-img" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/tianfu__menggong.webp"></div></div></td></tr>
         <tr><td>160701</td>
             <td>160702</td>
@@ -1206,8 +1093,8 @@
         <tr><td>170101</td>
             <td>170102</td>
             <td>170103</td>
-            <td><div class="title-data">Bloodfury Pursuit (Bloodfury Pursuit)</div></td>
-            <td class="desc-data">When 受擊, a [15,20,25]% 機率 to sacrifice [10,30,50]% of Max 生命值 to gain a [10,30,50]% 攻擊 Power boost for 12 秒. (CD: 30 秒)</td>
+            <td><div class="title-data">竭血逐攻 (Bloodfury Pursuit)*</div></td>
+            <td class="desc-data">攻擊命中目標時[5,10,15]%機率觸發,在12秒內降低自身[15,30,50]%最大生命換成增加[15,30,50]%攻擊力(至多[50,100,150]點)。(冷卻時間30秒)</td>
             <td><div class="hover-img-container"><img class="hover-img" width="32" height="32" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/tianfu__jiexuezhugong.webp"><div class="popover-container" style="left: 44px; top: -51px;"><img class="popover-img" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/tianfu__jiexuezhugong.webp"></div></div></td></tr>
         <tr><td>170111</td>
             <td>170112</td>
@@ -1248,8 +1135,8 @@
         <tr><td>170171</td>
             <td>170172</td>
             <td>170173</td>
-            <td><div class="title-data">Rampage (Rampage)</div></td>
-            <td class="desc-data">Enters a [5,10,15]-second Rampage state when Ignited, Poisoned, or Bleeding: +20% 攻擊速度 與 Movement SPD, 20% of 傷害 dealt is converted to 生命值 Recovery, 與 becomes immune to most Slow effects. (CD: [60,45,30] 秒)</td>
+            <td><div class="title-data">暴走 (Rampage)*</div></td>
+            <td class="desc-data">身體存在點燃、中毒、流血任意減益效果時,進入[5,10,15]秒「暴走」狀態:增加20%攻速、移速,有20%機率將造成傷害的25%轉化為生命恢復,免疫絕大部分減速效果。(冷卻時間[60,45,30]秒)</td>
             <td><div class="hover-img-container"><img class="hover-img" width="32" height="32" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/tianfu__baozou.webp"><div class="popover-container" style="left: 44px; top: -51px;"><img class="popover-img" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/tianfu__baozou.webp"></div></div></td></tr>
         <tr><td>170181</td>
             <td>170182</td>
@@ -1284,8 +1171,8 @@
         <tr><td>170231</td>
             <td>170232</td>
             <td>170233</td>
-            <td><div class="title-data">攻擊 Steal (Attack Steal)</div></td>
-            <td class="desc-data">[Warrior 專屬] Hitting an 敵人 has a [5,10,15]% 機率 to steal 10% of their 攻擊 (up to 30 points), 持續 12 秒, with a maximum of 5 stacks.</td>
+            <td><div class="title-data">攻擊竊取 (Attack Steal)*</div></td>
+            <td class="desc-data">【戰士專屬】攻擊命中目標時有[5,10,15]%機率觸發,竊取目標當前10%攻擊(至多20點),轉換為自身的提升,持續12秒,至多疊加5層。</td>
             <td><div class="hover-img-container"><img class="hover-img" width="32" height="32" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/tianfu__gongjiqiequ.webp"><div class="popover-container" style="left: 44px; top: -51px;"><img class="popover-img" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/tianfu__gongjiqiequ.webp"></div></div></td></tr>
         <tr><td>170241</td>
             <td>170242</td>
@@ -1320,8 +1207,8 @@
         <tr><td>170291</td>
             <td>170292</td>
             <td>170293</td>
-            <td><div class="title-data">共鳴/轉化 (Attack-Defense Resonance - Attack)</div></td>
-            <td class="desc-data">攻擊機率提升較低屬性，或將防禦/減傷轉為攻擊/增傷。</td>
+            <td><div class="title-data">攻防共鳴·攻 (Attack-Defense Resonance - Attack)*</div></td>
+            <td class="desc-data">攻擊命中目標時有[10,15,20]%概率觸發,增加自身「攻擊力」與「防禦力」中較低的一項,幅度為較高項的20%(至多100點),持續12秒。(冷卻時間[60,45,30]秒)</td>
             <td><div class="hover-img-container"><img class="hover-img" width="32" height="32" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/tianfu_gongfanpingheng1.webp"><div class="popover-container" style="left: 44px; top: -51px;"><img class="popover-img" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/tianfu_gongfanpingheng1.webp"></div></div></td></tr>
         <tr><td>170301</td>
             <td>170302</td>
@@ -1338,8 +1225,8 @@
         <tr><td>170321</td>
             <td>170322</td>
             <td>170323</td>
-            <td><div class="title-data">攻防轉化 - Attack (Attack-Defense Alteration - Attack)</div></td>
-            <td class="desc-data">Hitting an 敵人 has a [5,10,15]% 機率 to convert 50% of the character's total 防禦 轉化為 攻擊 for 12 秒.(冷卻: [60,45,30] 秒)</td>
+            <td><div class="title-data">攻防流轉·攻 (Attack-Defense Alteration - Attack)*</div></td>
+            <td class="desc-data">攻擊命中目標時有[5,10,15]%機率觸發,將目前一半的「防禦力」以50%比例轉換為「攻擊力」(至多150點),持續12秒。(冷卻時間[60,45,30]秒)</td>
             <td><div class="hover-img-container"><img class="hover-img" width="32" height="32" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/tianfu_guzhuyizhi1.webp"><div class="popover-container" style="left: 44px; top: -51px;"><img class="popover-img" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/tianfu_guzhuyizhi1.webp"></div></div></td></tr>
         <tr><td>170331</td>
             <td>170332</td>
@@ -1386,8 +1273,8 @@
         <tr><td>170401</td>
             <td>170402</td>
             <td>170403</td>
-            <td><div class="title-data">攻防共鳴 - Defense (Attack-Defense Resonance - Defense)</div></td>
-            <td class="desc-data">當防禦 敵人 攻擊, a [15,20,25]% 機率提升使用者較低的屬性 攻擊 與 防禦 提升幅度為較高屬性值的 20%, 持續 12 秒. (冷卻: [60,45,30] 秒)</td>
+            <td><div class="title-data">攻防共鳴・防 (Attack-Defense Resonance - Defense)*</div></td>
+            <td class="desc-data">防禦敵人攻擊時有[15,20,25]%概 率觸發,增加自身「攻擊 力」與「防禦力」中較低 的一項,幅度為較高項的 20%(至多100點),持續12秒。 (冷卻時間[60,45,30]秒)</td>
             <td><div class="hover-img-container"><img class="hover-img" width="32" height="32" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/tianfu_gongfanpingheng2.webp"><div class="popover-container" style="left: 44px; top: -51px;"><img class="popover-img" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/tianfu_gongfanpingheng2.webp"></div></div></td></tr>
         <tr><td>170411</td>
             <td>170412</td>
@@ -1404,8 +1291,8 @@
         <tr><td>170431</td>
             <td>170432</td>
             <td>170433</td>
-            <td><div class="title-data">攻防轉化 - Defense (Attack-Defense Alteration - Defense)</div></td>
-            <td class="desc-data">當防禦 敵人 攻擊, a [10,15,20]% 機率 to 將使用者一半的 攻擊 轉化為 防禦 at 200% 轉化率 for 12 秒.(冷卻: [60,45,30] 秒)</td>
+            <td><div class="title-data">攻防流轉・防 (Attack-Defense Alteration - Defense)*</div></td>
+            <td class="desc-data">防禦敵人攻擊時有[10,15,20]% 機率觸發，將目前一半的攻擊力以200%比例轉換為防禦力(至多300點)，持續12秒(冷卻時間[60,45,30]秒)</td>
             <td><div class="hover-img-container"><img class="hover-img" width="32" height="32" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/tianfu_guzhuyizhi2.webp"><div class="popover-container" style="left: 44px; top: -51px;"><img class="popover-img" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/tianfu_guzhuyizhi2.webp"></div></div></td></tr>
         <tr><td>170441</td>
             <td>170442</td>
@@ -1548,8 +1435,8 @@
         <tr><td>170641</td>
             <td>170642</td>
             <td>170643</td>
-            <td><div class="title-data">Resurgence (Resurgence)</div></td>
-            <td class="desc-data">Enters a 10-second Rampage state upon reaching full 生命值 or recovering from 瀕死, increasing 攻擊速度 與 移動速度 by 20%, converting 20% of 傷害 dealt to the target 轉化為 生命值 recovery, 與 gaining immunity to most Slow effects. (冷卻: [60,45,30] 秒)</td>
+            <td><div class="title-data">死灰復燃 (Resurgence)*</div></td>
+            <td class="desc-data">在生命值回滿或者從瀕死回到正常狀態時,使自己進入10秒「暴走」狀態:增加20%攻速、移速,有20%機率將造成傷害的25%轉化為生命恢復,免疫絕大部分減速效果。(冷卻時間[60,45,30]秒)</td>
             <td><div class="hover-img-container"><img class="hover-img" width="32" height="32" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/tianfu__sihuifuran.webp"><div class="popover-container" style="left: 44px; top: -51px;"><img class="popover-img" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/tianfu__sihuifuran.webp"></div></div></td></tr>
         <tr><td>170651</td>
             <td>170652</td>
@@ -1821,14 +1708,14 @@
             <td><div class="hover-img-container"><img class="hover-img" width="32" height="32" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/tianfu_gongjujingxiu.webp"><div class="popover-container" style="left: 44px; top: -51px;"><img class="popover-img" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/tianfu_gongjujingxiu.webp"></div></div></td>
         </tr>
     </tbody></table>
-    <h4 id="positive_personality">Source: Personality</h4>
+    <h4 id="positive_personality">Source: 個性</h4>
     <table class="data-table">
         <thead>
             <tr>
-                <th colspan="3">IDs</th>
-                <th rowspan="2">Title</th>
-                <th rowspan="2">Description</th>
-                <th rowspan="2">Icon</th>
+                <th colspan="3">編號</th>
+                <th rowspan="2">名稱</th>
+                <th rowspan="2">說明</th>
+                <th rowspan="2">圖示</th>
             </tr>
             <tr>
                 <th style="white-space: nowrap">Level 1</th>
@@ -1873,14 +1760,14 @@
             <td class="desc-data">When you're all panicky or too scared to st與 up for yourself, things can go downhill real quick in both life 與 combat.</td>
             <td><div class="hover-img-container"><img class="hover-img" width="32" height="32" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/Icon_NG_XiHao_WuQi.webp"><div class="popover-container" style="left: 44px; top: -51px;"><img class="popover-img" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/Icon_NG_XiHao_WuQi.webp"></div></div></td></tr>
     </tbody></table>
-    <h4 id="positive_tribe">Source: Tribe</h4>
+    <h4 id="positive_tribe">Source: 部落</h4>
     <table class="data-table">
         <thead>
             <tr>
-                <th colspan="3">IDs</th>
-                <th rowspan="2">Title</th>
-                <th rowspan="2">Description</th>
-                <th rowspan="2">Icon</th>
+                <th colspan="3">編號</th>
+                <th rowspan="2">名稱</th>
+                <th rowspan="2">說明</th>
+                <th rowspan="2">圖示</th>
             </tr>
             <tr>
                 <th style="white-space: nowrap">Level 1</th>
@@ -2160,10 +2047,10 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th colspan="3">IDs</th>
-                <th rowspan="2">Title</th>
-                <th rowspan="2">Description</th>
-                <th rowspan="2">Icon</th>
+                <th colspan="3">編號</th>
+                <th rowspan="2">名稱</th>
+                <th rowspan="2">說明</th>
+                <th rowspan="2">圖示</th>
             </tr>
             <tr>
                 <th style="white-space: nowrap">Level 1</th>
@@ -2330,10 +2217,10 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th colspan="3">IDs</th>
-                <th rowspan="2">Title</th>
-                <th rowspan="2">Description</th>
-                <th rowspan="2">Icon</th>
+                <th colspan="3">編號</th>
+                <th rowspan="2">名稱</th>
+                <th rowspan="2">說明</th>
+                <th rowspan="2">圖示</th>
             </tr>
             <tr>
                 <th style="white-space: nowrap">Level 1</th>
@@ -2498,14 +2385,14 @@
             <td class="desc-data">The best slaughter in the village; output from slaughtering animals 提升s by 20%.</td>
             <td><div class="hover-img-container"><img class="hover-img" width="32" height="32" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/ChengHao_tuzainengshou.webp"><div class="popover-container" style="left: 44px; top: -51px;"><img class="popover-img" alt="Talent icon" src="https://saraserenity.net/soulmask/img/ng/ChengHao_tuzainengshou.webp"></div></div></td></tr>
     </tbody></table>
-    <h4 id="positive_experience">Source: Experience</h4>
+    <h4 id="positive_experience">Source: 經歷</h4>
     <table class="data-table">
         <thead>
             <tr>
-                <th colspan="3">IDs</th>
-                <th rowspan="2">Title</th>
-                <th rowspan="2">Description</th>
-                <th rowspan="2">Icon</th>
+                <th colspan="3">編號</th>
+                <th rowspan="2">名稱</th>
+                <th rowspan="2">說明</th>
+                <th rowspan="2">圖示</th>
             </tr>
             <tr>
                 <th style="white-space: nowrap">Level 1</th>
@@ -2524,10 +2411,10 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th colspan="3">IDs</th>
-                <th rowspan="2">Title</th>
-                <th rowspan="2">Description</th>
-                <th rowspan="2">Icon</th>
+                <th colspan="3">編號</th>
+                <th rowspan="2">名稱</th>
+                <th rowspan="2">說明</th>
+                <th rowspan="2">圖示</th>
             </tr>
             <tr>
                 <th style="white-space: nowrap">Level 1</th>
@@ -3159,10 +3046,10 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th colspan="3">IDs</th>
-                <th rowspan="2">Title</th>
-                <th rowspan="2">Description</th>
-                <th rowspan="2">Icon</th>
+                <th colspan="3">編號</th>
+                <th rowspan="2">名稱</th>
+                <th rowspan="2">說明</th>
+                <th rowspan="2">圖示</th>
             </tr>
             <tr>
                 <th style="white-space: nowrap">Level 1</th>
@@ -3436,10 +3323,10 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th colspan="3">IDs</th>
-                <th rowspan="2">Title</th>
-                <th rowspan="2">Description</th>
-                <th rowspan="2">Icon</th>
+                <th colspan="3">編號</th>
+                <th rowspan="2">名稱</th>
+                <th rowspan="2">說明</th>
+                <th rowspan="2">圖示</th>
             </tr>
             <tr>
                 <th style="white-space: nowrap">Level 1</th>
@@ -3602,10 +3489,10 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th colspan="3">IDs</th>
-                <th rowspan="2">Title</th>
-                <th rowspan="2">Description</th>
-                <th rowspan="2">Icon</th>
+                <th colspan="3">編號</th>
+                <th rowspan="2">名稱</th>
+                <th rowspan="2">說明</th>
+                <th rowspan="2">圖示</th>
             </tr>
             <tr>
                 <th style="white-space: nowrap">Level 1</th>
@@ -3642,10 +3529,10 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th colspan="3">IDs</th>
-                <th rowspan="2">Title</th>
-                <th rowspan="2">Description</th>
-                <th rowspan="2">Icon</th>
+                <th colspan="3">編號</th>
+                <th rowspan="2">名稱</th>
+                <th rowspan="2">說明</th>
+                <th rowspan="2">圖示</th>
             </tr>
             <tr>
                 <th style="white-space: nowrap">Level 1</th>
