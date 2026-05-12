@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>靈魂面甲 Soulmask - 天賦資料庫</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary-bg: #0f172a;
+            --card-bg: #1e293b;
+            --accent-gold: #f59e0b;
+        }
+        body {
+            background-color: var(--primary-bg);
+            color: #e2e8f0;
+            font-family: "Microsoft JhengHei", sans-serif;
+        }
+        .skill-card {
+            background-color: var(--card-bg);
+            border: 1px solid #334155;
+            transition: all 0.2s ease;
+        }
+        .skill-card:hover {
+            border-color: var(--accent-gold);
+            transform: translateY(-2px);
+        }
+        .ids-tag {
+            font-family: monospace;
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+        /* 多選按鈕樣式 */
+        .multi-btn {
+            background-color: #0f172a;
+            border: 1px solid #475569;
+            color: #94a3b8;
+            transition: all 0.2s;
+            cursor: pointer;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+        .multi-btn:hover {
+            border-color: var(--accent-gold);
+            color: #fff;
+        }
+        .multi-btn.active {
+            background-color: var(--accent-gold);
+            border-color: #fff;
+            color: #000;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.3s ease forwards;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="bg-slate-900 border-b border-slate-700 p-4 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-amber-500">SOULMASK <span class="text-white font-light text-lg ml-2">天賦技能資料庫</span></h1>
+            <div class="space-x-6 hidden md:flex text-sm">
+                <a href="#" class="hover:text-amber-500 transition">首頁</a>
+                <a href="#" class="text-amber-500 border-b-2 border-amber-500">自然天賦</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-6">
+        <!-- 搜尋與進階過濾器 -->
+        <section class="mb-8 bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700">
+            <div class="space-y-6">
+                <!-- 第一行：關鍵字與類別 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">關鍵字搜尋</label>
+                        <input type="text" id="searchInput" placeholder="搜尋名稱、IDS 或描述..." class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-amber-500 outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">天賦類別</label>
+                        <select id="categorySelect" class="w-full bg-slate-900 border border-slate-600 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-amber-500 outline-none appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%2394a3b8%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M19%209l-7%207-7-7%22%3E%3C%22%2Fsvg%3E')] bg-no-repeat bg-[position:right_0.5rem_center] bg-[length:1.5em_1.5em]">
+                            <option value="全部">全部類別</option>
+                            <option value="戰鬥類">戰鬥類</option>
+                            <option value="通用類">通用類</option>
+                            <option value="工作類">工作類</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 第二行：陣營多選 -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">所屬陣營 (多選)</label>
+                    <div id="factionButtons" class="flex flex-wrap gap-2">
+                        <button class="multi-btn active" data-value="全部">全部</button>
+                        <button class="multi-btn" data-value="火石">火石</button>
+                        <button class="multi-btn" data-value="毒牙">毒牙</button>
+                        <button class="multi-btn" data-value="利爪">利爪</button>
+                        <button class="multi-btn" data-value="荒狼">荒狼</button>
+                        <button class="multi-btn" data-value="蠻角">蠻角</button>
+                    </div>
+                </div>
+
+                <!-- 第三行：職業多選 -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">推薦職業 (多選)</label>
+                    <div id="jobButtons" class="flex flex-wrap gap-2">
+                        <button class="multi-btn active" data-value="全部">全部</button>
+                        <button class="multi-btn" data-value="力工">力工</button>
+                        <button class="multi-btn" data-value="雜工">雜工</button>
+                        <button class="multi-btn" data-value="匠人">匠人</button>
+                        <button class="multi-btn" data-value="獵人">獵人</button>
+                        <button class="multi-btn" data-value="護衛">護衛</button>
+                        <button class="multi-btn" data-value="戰士">戰士</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 flex justify-between items-center text-xs border-t border-slate-700 pt-4">
+                <span class="text-slate-400" id="resultCount">計算中...</span>
+                <span class="text-amber-500 font-mono">FILTER_LOGIC: (Faction AND Job) AND Category_Contains</span>
+            </div>
+        </section>
+
+        <!-- 資料列表容器 -->
+        <div id="talentGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- JavaScript 動態渲染 -->
+        </div>
+
+        <div id="noResults" class="hidden text-center py-24">
+            <div class="text-5xl mb-4">🔍</div>
+            <p class="text-xl text-slate-500 font-light">找不到符合條件的天賦資料</p>
+            <button onclick="resetFilters()" class="mt-4 text-amber-500 hover:underline">清除所有過濾條件</button>
+        </div>
+
+    </main>
+
+    <footer class="mt-20 border-t border-slate-700 p-10 text-center text-slate-500 text-sm bg-slate-900/50">
+        <p>© 2026 靈魂面甲繁體資料庫</p>
+    </footer>
+
+    <script>
+        const talents = [
+            // --- 戰鬥類 ---
+			{ids:"100013",name:"步伐迅捷 (Swift Pace)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"步伐迅捷，移動速度提升9%",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_yidongsudutisheng.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+            {ids:"100023",name:"攻勢凌厲 (Fierce Attack)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻勢凌厲，攻速提升9%",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_gongjisudutisheng.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+            {ids:"100033",name:"強力攻擊 (Powerful Attack)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"天生蠻力，攻擊力提升9%",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_gongjilitisheng.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+            {ids:"100043",name:"強化防禦 (Enhance DEF)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"防禦能力異於常人，防禦力提升9%",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_fangyutisheng.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+            {ids:"100053",name:"减輕傷勢 (Injury Relieve)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"皮糙肉厚天生抗揍，受到傷害降低9%",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_shanghaijianmiantisheng.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+            {ids:"100063",name:"氣血充盈 (Full Vitality)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"面色紅潤有光澤,最大生命提升9%",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_shengmingzhitisheng.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+            {ids:"100073",name:"步履輕盈 (Light Footsteps)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"腳步輕盈，移動時腳步聲音降低50%",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_bulvqingying.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+            {ids:"100083",name:"悄無聲息 (Without a Sound)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"輕手輕腳，發出所有聲音降低50%",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_qiaowushengxi.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+            {ids:"100093",name:"不易察覺 (Unnoticeable)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"擅於偽裝不易察覺，被敵人發現時警戒增長速度降低60%",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_shanyuweizhuang.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+            {ids:"100103",name:"機敏 (Resourceful)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"自我意識主導身體時，面臨危險產生反應的機率提升35%",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jimin.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+            {ids:"100123",name:"腿腳靈活 (Nimble Movement)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"死亡總是慢我一小步，移動速度提升5%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_tuijiaolinghuo.webp",lv:"2",cooldown:"無",source:"自然天賦"},
+            {ids:"100133",name:"身強力壯 (Strong Physique)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"這副軀體承受了太多太多，最大體力提升20。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_shenqianglizhuang.webp",lv:"2",cooldown:"無",source:"自然天賦"},
+            {ids:"100143",name:"危機反應 (Crisis Response)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"受到攻擊時有20%機率觸發，防禦提升5%、最大生命提升5%，持續30s。(CD：50s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_weijifanying.webp",lv:"2",cooldown:"50s",source:"自然天賦"},
+            {ids:"100153",name:"垂死掙扎 (Desperate Struggle)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"生命值低於15%時會在5s內恢復15%的生命值。(CD：35s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_chuisizhengzha.webp",lv:"2",cooldown:"35s",source:"自然天賦"},
+            {ids:"100163",name:"反擊時刻 (Critical Counter)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"格防禦敵人攻擊後自身獲得一層傷害提高5%的效果，持續6s。(CD：15s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_fanjishike.webp",lv:"2",cooldown:"15s",source:"自然天賦"},
+            {ids:"100173",name:"逃脫宿命 (Escaping Death)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"生命值低於15%或瀕死時若受到敵人的攻擊，敵人有可能遭受天譴。(CD：15s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_taotuosuming.webp",lv:"2",cooldown:"15s",source:"自然天賦"},
+			{ids:"130013",name:"單刀增傷 (Single Blade DMG Increase)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"使用單刀威力更強，單刀類武器造成的傷害提升9%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_daoleiwuqishanghaitigao.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"130023",name:"長矛增傷 (Spear DMG Increase)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"使用長矛威力更強，長矛類武器造成的傷害提升9%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_maoleiwuqishanghaitigao.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"130033",name:"弓箭增傷 (Bow DMG Increase)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"使用弓箭威力更強，弓武器造成的傷害提升9%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_gongleiwuqishanghaitigao.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"130043",name:"大錘增傷 (Hammer DMG Increase)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"使用大錘威力更強，錘類武器造成的傷害提升9%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_chuileiwuqishanghaitigao.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"130053",name:"拳套增傷 (Gauntlets DMG Increase)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"使用拳套威力更強，拳套類武器造成的傷害提升9%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_quantaoiwuqishanghaitigao.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"130063",name:"巨劍增傷 (Giant Sword DMG Increase)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"使用巨劍威力更強，巨劍類武器造成的傷害提升9%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_zhongjianwuqishanghaitigao.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"130073",name:"雙刀增傷 (Dual-blade DMG Increase)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"使用雙刀威力更強，雙刀類武器造成的傷害提升9%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_shuangdaowuqishanghaitigao.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"130083",name:"硬皮・抗穿刺 (Hardened Skin - Anti-Pierce)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"皮厚刺不透，身體受到穿刺類型傷害時受到的傷害降低20%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_yingpikangchuanci.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"130093",name:"硬皮・抗揮砍 (Hardened Skin - Anti-Slash)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"皮韌砍不開，身體受到揮砍類型傷害時受到的傷害降低20%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_yingpikangqiege.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"130103",name:"硬皮・抗鈍擊 (Hardened Skin - Anti-Blunt Strike)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"皮硬砸不疼，身體受到鈍擊類型傷害時受到的傷害降低20%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_yingpikangdaji.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"150013",name:"痛苦逆轉 (Pain Reversal)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"將痛苦轉化為動力，受到攻擊時，有15%的機率清除自身天賦的冷卻狀態。(CD：20s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__tongkunizhuan.webp",lv:"3",cooldown:"20s",source:"自然天賦"},
+			{ids:"150021",name:"多重射擊 (Multiple Shooting)",category:["戰鬥類"],faction:"通用",job:"獵人",desc:"【獵人專屬】掌握弓類專精技能(射擊技巧)的多重發射能力，每次使用此類技能時都會射出多支箭矢。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_duochongsheji.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"150043",name:"巧勁 (Trick Force)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"掌握最佳的發力方式，在進行需要消耗體力的行動時體力消耗降低30%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_qiaojin.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"150053",name:"擅長肉搏 (Good at Melee Combat)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"熱衷於近身纏鬥，對5米內敵人造成的傷害提升9%。%",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_shanchangroubo.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"150063",name:"遠程打擊 (Remote Strike)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"距離拉開攻勢更猛，對15米外敵人造成的傷害提升9%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_yuanchengdaji.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"150083",name:"射手腳步 (Marksman Footstep)",category:["戰鬥類"],faction:"通用",job:"獵人",desc:"【獵人專屬】掌握特殊的弓類武器移動技巧，拉弓時移動速度提升20%，持續5秒。觸發加速時有15%的機率移除大多數減速效果。(CD：8s )",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_sheshoujiaobu.webp",lv:"3",cooldown:"8s",source:"自然天賦"},
+			{ids:"150093",name:"快速射擊 (Rapid Fire)",category:["戰鬥類"],faction:"通用",job:"獵人",desc:"【獵人專屬】極難掌握的弓類武器射擊技巧，使用弓類武器拉滿弓的蓄力時問縮短55%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_shuliansheji.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"150103",name:"快速裝填 (Quick Reload)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"這傢伙打小就聰明各種器材一學就會，使用弩箭塔、攻城弩砲時裝填速度縮短50%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_kuaisutianzhuang.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"150113",name:"錐骨之傷 (Bone-gnawing Wound)",category:["戰鬥類"],faction:"通用",job:"獵人",desc:"【獵人專屬】有些傷痛不會立即顯現，使用遠程武器命中目標時有15%機率施加一道持續5s的隱藏傷口，在此期間衝刺時會感到昏迷。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__zhuiguzhishang.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160013",name:"迴光返照 (Last Radiance)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"生命力頑強，生命值低於30%時會在5s內恢復20%生命值。(CD：40s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_huiguangfanzhao.webp",lv:"3",cooldown:"40s",source:"自然天賦"},
+			{ids:"160023",name:"野性覺醒 (Wild Nature Awakened)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"生命受到威脅時會喚起內心的野性，生命值低於30%時攻擊力提升20%且每秒恢復20點體力，但自身防禦力也會降低20%，持續時間15s。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_yexingjuexing.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"160033",name:"怒焰焚身 (Raging Inferno)",category:["戰鬥類"],faction:"利爪",job:"通用",desc:"【利爪專屬】減輕火焰所造成的燒傷效果，被點燃時每次攻擊敵人獲得一層傷害提升效果，提升值為2倍的點燃傷害，至多疊加10層。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__nuyanfenshen.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160043",name:"火勢蔓延 (Spreading Flames)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"我燒起來了誰都別想跑，身體被點燃時能夠將點燃效果傳遞給3米範圍內的敵人。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__lieyankuosan.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160053",name:"致命 (Fatal)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"對生命值低於30%的目標造成傷害時，有20%機率使本次傷害提升25%，並對目標造成一個持續5s的隱藏傷口，在此期間衝刺時會引發重度流血，每秒流失基於自身攻擊力80%的生命值。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__zhiming.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160063",name:"應激加速 (Acceleration at Stress)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"快速逃離危險，受到攻擊時有20%的機率，6s內移動速度提升30%。(CD：20s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_yingjifanying.webp",lv:"3",cooldown:"20s",source:"自然天賦"},
+			{ids:"160073",name:"忍辱負重 (Bite the Bullet)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"受到鞭策啟動潛能，受到攻擊時有30%的機率，10s內最大負重提升50%。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_renrufuzhong.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"160083",name:"愈戰愈勇 (Getting Braver)",category:["戰鬥類"],faction:"利爪",job:"通用",desc:"【利爪專屬】近身搏鬥使人熱血沸騰，攻擊5米內的目標時有15%機率獲得一層暴擊、暴抗、暴擊傷害、移動速度均提升4%的效果，持續30s，至多疊加5層。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_yuzhanyuyong.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160093",name:"燃燒威懾 (Fire Deterrence)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"身體燃燒時的恐怖景象令敵人膽怯，使8米範圍內的敵人攻擊 力、移動速度降低10%，持續10s，至多疊加3層。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__ranshaoweixie.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160113",name:"渴望鮮血 (Crave for Blood)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"對鮮血無盡渴求，攻擊5米內的目標時自己有25%的機率吸收本次傷害30%的生命值。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_kewangxianxue.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160123",name:"攻其不備 (Surprise Attack)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"每個部位都有弱點，有20%機率將攻擊命中的任意部位都視為弱點部位。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_gongqibubei.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160133",name:"意志堅定 (Firm Will)",category:["戰鬥類"],faction:"火石",job:"通用",desc:"【火石專屬】意志堅定無法撼動，受到硬直效果時有25%的機率免疫本次硬直效果。(CD：5s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_yizhijianding.webp",lv:"3",cooldown:"5s",source:"自然天賦"},
+			{ids:"160143",name:"靈活逃脫 (Clever Escape)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"留足體力隨時逃脫，受到硬直效果時，恢復25點體力。(CD：5s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_linghuotaotuo.webp",lv:"3",cooldown:"5s",source:"自然天賦"},
+			{ids:"160153",name:"硬化身軀 (Hardened Body)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"面對威脅瞬間繃緊身體，受到硬直效果時有20%機率獲得3秒霸體。(CD：5s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_yinghuashenqu.webp",lv:"3",cooldown:"5s",source:"自然天賦"},
+			{ids:"160163",name:"頭部應激 (Head Stress Response)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"頭部受到攻擊時有20%機率產生應激反應，接下來受到的傷害降低50%，持續5s。(CD：12s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_toubuyingji.webp",lv:"3",cooldown:"12s",source:"自然天賦"},
+			{ids:"160173",name:"手臂應激 (Arm Stress Response)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"手臂受到攻擊時有20%機率產生應激反應，接下來受到的傷害降低50%，持續5s。(CD：12s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_shoubiyingji.webp",lv:"3",cooldown:"12s",source:"自然天賦"},
+			{ids:"160183",name:"軀幹應激 (Torso Stress Response)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"軀幹受到攻擊時有20%機率產生應激反應，接下來受到的傷害降低50%，持續5s。(CD：12s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_quganyingji.webp",lv:"3",cooldown:"12s",source:"自然天賦"},
+			{ids:"160193",name:"大腿應激 (Thigh Stress Response)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"大腿受到攻擊時有20%機率產生應激反應，接下來受到的傷害降低50%，持續5s。(CD：12s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_datuiyingji.webp",lv:"3",cooldown:"12s",source:"自然天賦"},
+			{ids:"160203",name:"肢體破壞 (Limb Destruction)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"精通肢體結構，攻擊到目標四肢部位時，有20%機率傷害提升25%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_zhitipohuai.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160213",name:"軀幹破壞 (Torso Destruction)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"精通軀幹結構，攻擊到目標軀幹部位時，有20%機率傷害提升25%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_quganpohuai.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160223",name:"頭部破壞 (Head Destruction)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"精通頭部結構，攻擊到目標頭部部位時，有20%機率傷害提升25%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_toubupohuai.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160233",name:"尾部破壞 (Tail Destruction)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"精通尾部結構，攻擊到目標尾部時，有20%機率傷害提升25%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_weibupohuai.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160243",name:"弱點強化 (Weak Spot Enhance)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"刻意加強自己的弱點部位，被攻擊到弱點部位時，部位傷害降低60%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_ruodianqianghua.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160253",name:"奮起反擊 (Fight Back)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"身體每個關節對敵人都是威脅，身體受到來自5米以內的攻擊 時(頭部除外)，返還20%傷害給攻擊者。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_fenqifanji.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160263",name:"弱點重擊 (Weakness Thump)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"對弱點施展重擊，攻擊到目標弱點部位時，有25%機率使本次部位傷害提升25%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_ruodianzhongji.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160273",name:"輕裝速行 (Loadless Fast Marching)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"輕裝上陣腳步更加迅捷，負重達到50%之 前，移動速度提升15%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_qingzhuangsuxing.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160283",name:"重裝奔襲 (Loaded Raid)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"背負重物腳步更加迅捷，負重達到90%之後，移動速度提升40%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_zhongzhuangbenxi.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160293",name:"忍耐 (Endurance)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"成功防御敵人的攻擊後，使自身防禦力提升80%持續12s，在此期間不會被造成暴擊。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__rennai.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"160303",name:"轉守為攻 (Defense to Offense)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"掌握高超的彈反技巧，成功彈反敵人的近距離攻擊後返還本次傷害的50%給攻擊者。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_zhuanshouweigong.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160303",name:"避實擊虛 (Dodge and Strike)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"成功閃避敵人攻擊後，短時間內增加30%移動速度、攻擊速度、提升10%攻擊力，持續5s。(CD：10s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_bishijixu.webp",lv:"3",cooldown:"10s",source:"自然天賦"},
+			{ids:"160343",name:"極限閃避 (Extreme Dodge)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"成功閃避敵人攻擊後立即恢復35點體力。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jixianshanbi.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160353",name:"戰術閃避 (Tactical Dodge)",category:["戰鬥類"],faction:"火石",job:"通用",desc:"【火石專屬】成功閃避敵人攻擊後，可清除自身天賦的冷卻狀態。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__zhanshushanbi.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"160373",name:"氣定神閒 (Calm and Peaceful)",category:["戰鬥類"],faction:"毒牙",job:"通用",desc:"【毒牙專屬】從容優雅地應對戰鬥，12秒內沒有受到任何傷害即會獲得一層攻擊力提升2%，攻擊速度提升2%，暴擊提升3%，暴擊傷害提升4%，但受到傷害少量提升的效果，至多疊加5層，每次受到傷害移除一層。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_qidingshenxian.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160383",name:"靜態恢復 (Static Recovery)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"生命在於靜止，15秒內沒有任何移動身體即會緩慢恢復，每秒恢復基於自身防禦力25%的生命值。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jingtaihuifu.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160433",name:"鮮血吸收 (Blood Absorption)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"飲血充飢，對5米內的目標造成傷害時，有15%機率使其額外流失最大生命的3%(至多100點)並為攻擊者恢復等量生命值。若目標處於流血狀態，則效果提升至5%(至多150點)。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_xianxuexishou.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160443",name:"撕裂傷口 (Tear Wound)",category:["戰鬥類"],faction:"毒牙",job:"通用",desc:"【毒牙專屬】破壞傷口，對正在流血的目標造成的傷害提升15%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_silieshangkou.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160453",name:"捨命相搏 (Fight to Death)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"奮力反擊無暇防守，受到攻擊有20%機率使自身造成的傷害提升40%，但受到的傷害也會提升40%，持續15s。(CD：25s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_shemingxiangbo.webp",lv:"3",cooldown:"25s",source:"自然天賦"},
+			{ids:"160463",name:"浴血恢復 (Bloodbath Recovery)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"鮮血即生命，受到攻擊時有20%的機率舔血恢復，每秒恢復基於自身攻擊力30%的生命值，持續15s，在此期間受流血狀態損失的生命將轉換為1.5倍的生命恢復。(CD：25s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_yuxuehuifu.webp",lv:"3",cooldown:"25s",source:"自然天賦"},
+			{ids:"160473",name:"兩敗俱傷 (Lose-lose)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"以痛苦換取力量，被攻擊到弱點部位時有25%機率15s內對敵人的弱點部位傷害提升60%，但自己的弱點受到傷害也會提升60%。持續15s(CD：25s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_liangbaijushang.webp",lv:"3",cooldown:"25s",source:"自然天賦"},
+			{ids:"160483",name:"勢大力沉 (Overwhelming Force)",category:["戰鬥類"],faction:"利爪",job:"通用",desc:"【利爪專屬】每一擊都勢大力沉，對目標造成傷害時額外消耗15體力以使本次傷害提升15%，並額外消耗目標10點體力。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_shidalichen.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160493",name:"盾防反擊 (Shield Bash)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"掌握巧妙的盾牌防禦技巧，額外消耗最大體力的10%+7點來防禦近距離攻擊，並對攻擊者造成基於自身攻擊力100%的傷害，若防禦時體力低於30%則自身會受到雙倍傷害。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_fangyufanji.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160503",name:"忍耐爆發 (Endurance Burst)",category:["戰鬥類"],faction:"火石",job:"通用",desc:"【火石專屬】忍無可忍則無需再忍，成功防禦攻擊且體力在60%以上則會恢復30點韌性，並獲得一層防禦力提升10%的效果，累計層數超過5層時進入爆發時刻6秒內造成的傷害提升100%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_rennaibaofa.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160513",name:"技巧恢復 (Skill Recovery)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"掌握精妙的恢復時機，成功彈反敵人的攻擊後將恢復本次傷害35%的生命值。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jiqiaohuifu.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160523",name:"洞察防禦 (Insight DEF)",category:["戰鬥類"],faction:"火石",job:"通用",desc:"【火石專屬】洞察敵人的防守缺陷，成功反彈敵人的攻擊後7s內自己的攻擊可以無視敵人的防禦力。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_dongchafangyu.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"160533",name:"復仇之怒 (Wrath of Revenge)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"化悲憤為力量，周圍10米內有友方瀕死或死亡時會被徹底激怒，攻擊力提升20%，防禦力提升25%，攻擊速度提升10%，移動速度提升15%，每秒恢復體力20點，持續20s。(CD：50s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_fuchouzhinu.webp",lv:"3",cooldown:"50s",source:"自然天賦"},
+			{ids:"160543",name:"敵隕狂熱 (Enemy Down Fervency)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"每當有敵人戰敗則會愈發興奮，自己10米內有敵人瀕死或死亡時，獲得3次抵擋攻擊傷害的效果，受到攻擊即消耗1次。(CD：40s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_disunkuangre.webp",lv:"3",cooldown:"40s",source:"自然天賦"},
+			{ids:"160553",name:"手段殘忍 (Merciless Means)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"被自己擊殺的敵人死狀異常慘烈，削弱屍體10米範圍內的敵人使其攻擊速度降低15%，暴抗降低20%，防禦降低200，持續20s。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_shouduancairen.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160563",name:"屠戮狂熱 (Slaughter Fervency)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"手刃敵人的快感無以言表，每使一名敵人瀕死或死亡，自身將獲得10s霸體並且在此期間暴抗極大幅度提升。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_tulukuangre.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"160573",name:"堅定不移 (Determined)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"沉著冷靜臨危不亂，6s內沒有任何移動會獲得一層攻擊力提升2%，攻擊速度提升2%，暴擊提升3%，暴擊傷害提升4%，但受到傷害少量提升的效果，至多疊加5層，移動後會移除所有效果。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jiandingbuyi.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160583",name:"致命節奏 (Fatal Rhythm)",category:["戰鬥類"],faction:"利爪",job:"通用",desc:"【利爪專屬】戰鬥節奏畫在掌控，攻擊敵人時體力在70%以上則會獲得一層攻擊力、攻擊速度提升4%的效果，持續10s，至多疊加5層。(不滿足則會移除所有效果 )",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_zhimingjiezou.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160593",name:"直擊要害 (Go for the Jugular)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"雙目如雄鷹般犀利，攻擊15米外敵人的弱點部位時使本次部位傷害提升25%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_zhijiyaohai.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160603",name:"避開要害 (Avoid Vitals)",category:["戰鬥類"],faction:"火石",job:"通用",desc:"【火石專屬】距離越遠的攻擊對自己威脅越小，受到來自10米外的攻擊時，有20%的機率使本次受到的傷害降低80%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_bikaiyaohai.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160613",name:"鋼鐵之軀 (Steel Body)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"受到攻擊時若當前韌性超過50%則免疫本次硬直。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_gangtiezhiqu.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160623",name:"毒軀 (Poisoned Body)",category:["戰鬥類"],faction:"毒牙",job:"通用",desc:"【毒牙專屬】身體攜帶強力壽素，攻擊命中目標時有15%機率對其造成一層持續傷害、流逝體力、精神虛弱的中壽效果，持續10秒，至多疊加5層。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_duqu.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160633",name:"心念合一 (Mind-Heart Unison)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻勢凌厲身心合一，攻擊命中目標時有20%的機率使自己進入心流，在10s內自己所有機率觸發的天賦必定觸發。(CD：25s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_xinnianheyi.webp",lv:"3",cooldown:"25s",source:"自然天賦"},
+			{ids:"160643",name:"穿透防禦 (PEN DEF)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻擊命中目標時有15%的機率使本次攻擊無視目標防禦。(CD：2s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_chuantoufangyu.webp",lv:"3",cooldown:"2s",source:"自然天賦"},
+			{ids:"160653",name:"挫敵銳氣 (Morale Dampener)",category:["戰鬥類"],faction:"利爪",job:"通用",desc:"【利爪專屬】凶猛的攻勢讓敵人聞風喪膽，攻擊命中目標時有15%的機率對其造成攻擊降低3%，防禦降低2%，移動速度降低5%的效果，持續15s，至多疊加5層。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_cuodiruiqi.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160663",name:"抑制暴力 (Suppress Violence)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"用力量讓敵人屈服，攻擊命中目標時有15%的機率對其造成暴擊率降低7%的效果，持續15s，至多疊加5層。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_yizhibaoli.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160673",name:"惡意 (Malice)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"對狀態異常的敵人心生惡意，攻擊5米內處於中壽、燒傷、流血狀態的目標時，有15%的機率使自己獲得一層暴擊率提升3%、暴擊傷害提升4%的效果，持續10s，至多疊加5層。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_eyi.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160683",name:"醉意威應 (Drunken Senses)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"酒醉人不醉，在飲酒後的15s內可閃避3次攻擊，喜好飲酒者會獲得更多次數。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__zuitaiganying.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"160693",name:"猛攻 (Onslaught)",category:["戰鬥類"],faction:"通用",job:"戰士",desc:"【戰士專屬】以猛獸般的攻勢壓制敵人，清空目標韌性時會移除其霸體狀態，12s內攻擊速度提升10%，若每擊傷害超過目標最大生命5%則恢復體力。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__menggong.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"160893",name:"磐石意志 (Rock-like Resolve)",category:["戰鬥類"],faction:"通用",job:"衛士",desc:"【衛士專屬】成功防禦敵人的攻擊後，使自身的昏迷、麻痺、流血抗性提升80%持續12s。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__panshiyizhi.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"160903",name:"以牙還牙 (Tit for Tat)",category:["戰鬥類"],faction:"利爪",job:"通用",desc:"【利爪專屬】威受痛苦強勢回擊，受到攻擊時有20%的機率觸發能夠在8s內累積傷害，在此期間攻擊到敵人時將對其釋放當前累積到的所有傷害。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_yiyahuanya.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"160913",name:"格擋反擊 (Riposte)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"使用非盾牌武器防禦近距離攻擊時，有20%的機率額外消耗30點體力使攻擊者在5秒內陷入無力狀態，攻擊力大幅降低。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_gedangfanji.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160923",name:"怒火傾瀉 (Pouring Rage)",category:["戰鬥類"],faction:"毒牙",job:"通用",desc:"【毒牙專屬】積蓄怒火一擊致命，受到攻擊時有20%的機率觸發累積8s內受到的所有傷害，在累積結束後的8s內攻擊到敵人時將對其釋放累積的所有傷害。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_nuhuoqingxie.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"160933",name:"後發制人 (Strikeback)",category:["戰鬥類"],faction:"毒牙",job:"通用",desc:"【毒牙專屬】 觀察進攻伺機而動，成功閃避敵人2次攻擊後(每次間隔不超過6s)，接下來7s內的攻擊可以無視敵人防禦力。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_houfazhiren.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160943",name:"激發鬥志 (Stimulate Morale)",category:["戰鬥類"],faction:"火石",job:"通用",desc:"【火石專屬】痛苦喚醒自我仇恨啟動潛能，受到攻擊時有20%機率進入心流，在10s內自己所有機率觸發的天賦必定觸發。(CD：25s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jifadouzhi.webp",lv:"3",cooldown:"25s",source:"自然天賦"},
+			{ids:"160953",name:"絕境應激 (Desperate Response)",category:["戰鬥類"],faction:"毒牙",job:"通用",desc:"【毒牙專屬】瀕臨死亡時激起強烈的求生欲，生命值低於30%時，每次受到攻擊時至多失去3%最大生命。(受到傷害超過生命上限時無法生效)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_juejingyingji.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160963",name:"化解危機 (Crisis Resolution)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"沒點絕活怎麼在這片土地生存，有15%的機率觸發，受到攻擊時使這次傷害至多失去3%最大生命。(受到傷害超過生命上限時無法生效)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_huajieweiji.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160973",name:"出血抑制 (Blood Staunching)",category:["戰鬥類"],faction:"毒牙",job:"通用",desc:"【毒牙專屬】凝血速度異於常人，在受到攻擊時有15%的機率觸發，移除自身的流血效果並在12秒內不會受到流血效果影響。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__chuxueyizhi.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170003",name:"微風勁雨 (Breezy Downpour)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"使自己的移動速度永久減少30%，但自身攻擊速度增加30%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__weifengjinyu.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170013",name:"群狼庇護 (Wolf Pack Protection)",category:["戰鬥類"],faction:"荒狼",job:"通用",desc:"【荒狼專屬】在生命值回滿或者從瀕死回到正常狀態時，使自己及10米範圍內的友方族人不會受到絕大多數減速效果影響，持續12s。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__qunlangpihu.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170023",name:"蠻角庇護 (Protection of the Savagehorn)",category:["戰鬥類"],faction:"蠻角",job:"通用",desc:"【蠻角專屬】在生命值回滿或者從瀕死回 到正常狀態時，使自己及10米範圍內的友方族人不會被造成暴擊，持續12s。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__manjiaobihu.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170033",name:"迴光反擊 (Last Light Counter)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"在生命值回滿或者從瀕死回到正常狀態後的6s內，受到來自5米以內的攻擊，回饋100%傷害給攻擊者。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__huiguangfanji.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170043",name:"攫體化血 (Body-Blood Conversion)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"生命值低於50%時觸發，在12s內受到的傷害將轉換為同比例的體力傷害，在此期間體力不會自然恢復，直至體力耗盡。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__juetihuaxue.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170053",name:"攫體化韌 (Body-Resilience Conversion)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"生命值低於50%時觸發，在12s內受到的韌性傷害轉換為體力傷害，在此期間體力不會自然恢復，直至體力殆盡。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__juetihuaren.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170063",name:"強韌癒合 (Resilient Healing)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"生命值高於70%以上時受到傷害，每秒恢復基於防禦力30%的生命至滿。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__tanxinghuifu.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170073",name:"誓死決心 (Unyielding Will)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"生命值低於50%時觸發，無法閃避，但也不會受到任何硬直，持續25s。(CD：60s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__shisijuexin.webp",lv:"3",cooldown:"60s",source:"自然天賦"},
+			{ids:"170083",name:"餘燼 (Embers)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"生命耗盡時不會進入瀕死，在12s內可額外承受9次致死攻擊，效果時問內次數耗盡則立即死亡。(CD：45s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__yujin.webp",lv:"3",cooldown:"45s",source:"自然天賦"},
+			{ids:"170093",name:"體力虹吸 (Stamina Siphon)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻擊命中目標時有15%機率觸發，使其在12s內每次攻擊額外消耗20點體力為施加者恢復20點體力。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__tilihongxi.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170103",name:"竭血逐攻 (Bloodfury Pursuit)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻擊命中目標時15%機率觸發，在12s內降低自身50%最大生命換成增加50%攻擊力(至多150點)。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__jiexuezhugong.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170113",name:"免傷祈佑 (Damage Immunity Blessing)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"受到攻擊時有15%機率觸發，在12s內敵人對自己造成的傷害始終以最低值進行計算。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__mianshangqiyou.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170123",name:"染血荊棘 (Bloodstained Thorns)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"當自身處於流血狀態時，也會將流血效果傳遞給3米範圍內的敵人。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_xueranjingji.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170133",name:"生命枷鎖 (Life Shacles)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"受到攻擊時有15%機率觸發，在25s內完全失去生命恢復能力，但每次受到傷害至多失去2%最大生命。(CD：60s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_shengmingjiesuo.webp",lv:"3",cooldown:"60s",source:"自然天賦"},
+			{ids:"170143",name:"嫁禍 (Scapegoat)",category:["戰鬥類"],faction:"蠻角",job:"通用",desc:"【蠻角專屬】受到攻擊時有15%機率觸發，在12s內，能將敵人施加的持續效果轉移到15米範圍內其他敵人身上。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jiahuo.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170153",name:"狡詐 (Cunning)",category:["戰鬥類"],faction:"荒狼",job:"通用",desc:"【荒狼專屬】受到攻擊時有15%機率觸發，在12s內，能將敵人施加的持續效果返還給施加者。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jiaozha.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170163",name:"禁忌之軀 (Tabooed Body)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"受到攻擊時有15%機率觸發，使攻擊者在15s內所有天賦無法觸發。(CD：40s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__jinjizhiqu.webp",lv:"3",cooldown:"40s",source:"自然天賦"},
+			{ids:"170173",name:"暴走 (Rampage)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"身體存在點燃、中毒、流血任意減益效果時，進入15s「暴走」狀態：增加20%攻速、移速，有20%機率將造成傷害的25%轉化為生命恢復，免疫絕大部分減速效果。(CD：30S)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__baozou.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170183",name:"勇氣激流 (Courageous Current)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻擊命中目標時有15%機率觸發，清除自身天賦的冷卻狀態。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__yongqijiliu.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170193",name:"增傷祈佑 (Damage Boost Blessing)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻擊命中目標時有15%機率觸發，使接下來對目標造成的10次武器傷害將鎖定為近期內的最高傷害值，持續12s。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__zengshangqiyou.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170203",name:"潰防衝擊 (Shield Bash)",category:["戰鬥類"],faction:"蠻角",job:"通用",desc:"【蠻角專屬】攻擊目標時若目標在防禦狀態有15%的機率清空其體力破壞其防禦狀態。(CD：5s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__kuifangchongji.webp",lv:"3",cooldown:"5s",source:"自然天賦"},
+			{ids:"170213",name:"增傷竊取 (Damage Boost Steal)",category:["戰鬥類"],faction:"荒狼",job:"通用",desc:"【荒狼專屬】攻擊命中目標時有15%機率觸發，竊取目標10%的傷害提升，轉化為自身的提升，持續12s，至多疊加5層。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__zengshangqiequ.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170223",name:"免傷竊取 (Damage Immunity Steal)",category:["戰鬥類"],faction:"蠻角",job:"通用",desc:"【蠻角專屬】攻擊命中目標時有15%機率觸發，竊取目標10%的傷害減免，轉換為自身的提升，持續12s，至多疊加5層。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__mianshangqiequ.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170233",name:"攻擊竊取 (Attack Steal)",category:["戰鬥類"],faction:"通用",job:"戰士",desc:"【戰士專屬】攻擊命中目標時有15%機率觸發，竊取目標當前10%攻擊(至多20點)，轉換為自身的提升，持續12S，至多疊加5層。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__gongjiqiequ.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170243",name:"防禦竊取 (Defense Steal)",category:["戰鬥類"],faction:"通用",job:"衛士",desc:"【衛士專屬】攻擊命中目標時有15%機率觸發，竊取目標目前10%防禦(至多40點)，轉換為自身的提升，持續12s，至多疊加5層。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_fangyuqiequ.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170253",name:"體力竊取 (Stamina Steal)",category:["戰鬥類"],faction:"通用",job:"獵人",desc:"【獵人專屬】攻擊命中目標時有15%機率觸發，竊取目標目前10%的最大體力(至多30點)，轉化為自身的提升，持續12s，至多疊加5層。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_tiliqiequ.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170263",name:"暴擊竊取 (Crit steal)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻擊命中目標時有15%機率觸發，竊取目標5%暴擊、10%暴傷提升，轉換為自身的提升，持續12s，至多疊加5層。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_baojiqiequ.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170273",name:"暴抗竊取 (Crit Resist Steal)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻擊命中目標時有15%機率觸發，竊取目標5%暴抗、10%暴傷減免，轉化為自身的提升，持續12s，至多疊加5層。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_baokangqiequ.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170283",name:"喘息之機 (Moment of Respite)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"首次受到武器攻擊後，該傷害將在3s內恢復。若在恢復期間再次受到武器攻擊，則立即對自身造成與首次武器攻擊相等的傷害，並終止恢復效果。(CD：5s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_yushijufen.webp",lv:"3",cooldown:"5s",source:"自然天賦"},
+			{ids:"170293",name:"攻防共鳴・攻 (Attack-Defense Resonance - Attack)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻擊命中目標時有20%概率觸發，增加自身「攻擊力」與「防禦力」中較低的一項，幅度為較高項的20%(至多100點)，持續12s。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_gongfanpingheng1.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170303",name:"傷害共鳴・攻 (Damage Resonance - Attack)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻擊命中目標時有20%機率觸發，增加自身「傷害提升」與「傷害減免」中較低的一項，幅度為較高項的50%，持續12s。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_shanghaigongming1.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170313",name:"傷害流動・攻 (Damage Alteration - Attack)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻擊命中目標時有15%機率觸發，將目前的全部「傷害減免」以50%比例轉化為「傷害提升」，持續12s。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_gongshouyishi1.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170323",name:"攻防流轉・攻 (Attack-Defense Alteration - Attack)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻擊命中目標時有15%機率觸發，將目前一半的「防禦力」以50%比例轉換為「攻擊力」(至多150點)，持續12s。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_guzhuyizhi1.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170333",name:"全盛狀態 (Full Power State)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻擊命中目標時若自身生命值、韌性值全滿，則獲得12s全盛狀態，在此期問暴擊傷害增加50%，並且自身不會被暴擊。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_quanshengzhuangtai.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170343",name:"先攻 (Initiative)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻擊目標後背時額外附加50點昏迷傷害。(CD：5s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__xiangong.webp",lv:"3",cooldown:"5s",source:"自然天賦"},
+			{ids:"170353",name:"濁血之壽 (Miasmic Blood)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻擊命中目標時有15%機率觸發，使其在使用藥物類道具時會累積大量毒素，持續15s。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__zhuoxuezhidu.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170363",name:"滯緩之毒 (Stagnating Toxin)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻擊中毒目標時有15%機率觸發，使其在發動攻擊或衝刺時，攻速或移速將愈發遲緩，持續15s。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__zhihuanzhidu.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170373",name:"詛咒之擊 (Cursed Strike)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻擊命中目標時有15%機率觸發，使其在10s內所有天賦無法觸發。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__zuzhouzhiji.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170383",name:"動脈破壞 (Arterial Rupture)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻擊處於流血狀態的目標有15%機率觸發，使其流血傷害大幅增加，持續8s。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__dongmaipohuai.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170393",name:"防禦強襲 (Defensive Attack)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"防禦敵人攻擊後，使接下來3秒內的攻擊忽視敵人防禦力。(CD：20s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__fangyuqiangxi.webp",lv:"3",cooldown:"20s",source:"自然天賦"},
+			{ids:"170403",name:"攻防共鳴・防 (Attack-Defense Resonance - Defense)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"防禦敵人攻擊時有25%概率觸發，增加自身「攻擊力」與「防禦力」中較低的一項，幅度為較高項的20%(至多100點)，持續12s。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_gongfanpingheng2.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170413",name:"傷害共鳴・防 (Damage Resonance - Defense)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"防禦敵人攻擊時有25%機率觸發，增加自身「傷害提升」與「傷害減免」中較低的一項，幅度為較高項的50%，持續12s。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_shanghaigongming2.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170423",name:"傷害流轉・防 (Damage Alteration - Defense)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"防禦敵人攻擊時有20%機率觸發，將目前一半的「傷害提升」轉化為「傷害減免」，持續12s。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_gongshouyishi2.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170433",name:"攻防流轉・防 (Attack-Defense Alteration - Defense)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"防禦敵人攻擊時有20%機率觸發，將目前一半的攻擊力以200%比例轉換為防禦力(至多300點)，持續12s(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_guzhuyizhi2.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170443",name:"混亂防禦 (Chaos Defense)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"防禦敵人攻擊時有15%機率觸發，使其「混亂」在5s內移動操作反轉。(CD：20s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_hunluanfangyu.webp",lv:"3",cooldown:"20s",source:"自然天賦"},
+			{ids:"170453",name:"迷惑防禦 (Confusion Defense)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"防禦敵人攻擊時有15%機率觸發，使其「迷惑」在5s內視角操作反轉。(CD：20s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_mihuofangyu.webp",lv:"3",cooldown:"20s",source:"自然天賦"},
+			{ids:"170463",name:"震盪防禦 (Shock Defense)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"防禦敵人攻擊時有15%機率觸發，使其「麻木」在5s內無法防禦。(CD：20s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_fangyuzhendang.webp",lv:"3",cooldown:"20s",source:"自然天賦"},
+			{ids:"170473",name:"霸體崩解 (Superarmor Break)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"彈反敵人攻擊時有40%機率觸發，移除其霸體狀態並使其3s內無法獲得霸體。(CD：15s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_batibengjie.webp",lv:"3",cooldown:"15s",source:"自然天賦"},
+			{ids:"170483",name:"混亂彈反 (Confusion Reflect)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"彈反敵人攻擊時，使其「混亂」在10s內移動操作反轉。(CD：25s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_hunluanfantan.webp",lv:"3",cooldown:"25s",source:"自然天賦"},
+			{ids:"170493",name:"迷惑彈反 (Baffle Reflect)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"彈反敵人攻擊時，使其「迷惑」在10s內視角操作反轉。(CD：25s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_mihuofantan.webp",lv:"3",cooldown:"25s",source:"自然天賦"},
+			{ids:"170503",name:"奪勢 (Momentum Shift)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"彈反敵人攻擊時，若敵人目前的攻防相關屬性高於自身，則強化自身較低的部分，基於敵人實力至多增加20%，持續12s。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_duoshi.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170513",name:"震盪彈反 (Shock Reflect)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"彈反敵人攻擊時，使其「麻木」在10s內無法防禦。(CD：25s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_fantanzhendang.webp",lv:"3",cooldown:"25s",source:"自然天賦"},
+			{ids:"170523",name:"連鎖閃避 (Chain Dodge)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"成功閃避敵人攻擊後，在接下來的4s內能夠額外免疫一次攻擊傷害。(CD：5s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__liansuoshanbi.webp",lv:"3",cooldown:"5s",source:"自然天賦"},
+			{ids:"170533",name:"破壞閃擊 (Limb Shatter)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"成功閃避敵人攻擊後有25%機率觸發，4s內的下一次攻擊暴擊增加100%，並隨機對其造成「混亂」「迷惑」「逆閃」其中一種效果持續6s。(CD：12s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__pohuaishanji.webp",lv:"3",cooldown:"12s",source:"自然天賦"},
+			{ids:"170543",name:"以攻代守 (Offense is the Best Defense)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"成功閃避敵人攻擊後，在8s內使自己的攻擊無法被彈反，並使自己的任意武器攻擊能夠彈反敵人的攻擊。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__yigongdaishou.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170553",name:"重整旗鼓 (Reorganize)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"處於瀕死狀態時，附近有敵人進入瀕死或死亡可使自己立即脫離瀕死狀態，並額外恢復20%生命。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__chongzhengqigu.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170563",name:"處決威懾 (Executioner's Dread)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"處決目標時可以削弱10米範圍內的敵人，使其陷入懦弱狀態攻擊力、暴擊下降20%，攻擊速度下降15%，持續15s。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__chujueweixie.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170573",name:"完美吸收 (Perfect Absorption)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"在受到任何生命恢復類效果時恢復量提升50%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__wanmeixishou.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170583",name:"群狼戰魂 (Spirit of the Pack)",category:["戰鬥類"],faction:"荒狼",job:"通用",desc:"【荒狼專屬】攻擊命中目標時有15%機率觸發，15米範圍內每名友方族人為自己提供4%傷害提升(至多5人)，若為荒狼部落族人則效果為8%，持續20s。(CD：10s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__qunlangzhanhun.webp",lv:"3",cooldown:"10s",source:"自然天賦"},
+			{ids:"170593",name:"蠻角戰魂 (Savagehorn Soul)",category:["戰鬥類"],faction:"蠻角",job:"通用",desc:"【蠻角專屬】攻擊命中目標時有15%機率觸發，15米範圍內每名友方族人為自己提供4%傷害減免(至多5人)，若為蠻角部落族人則效果為8%，持續20s。(CD：10s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__manjiaozhanhun.webp",lv:"3",cooldown:"10s",source:"自然天賦"},
+			{ids:"170603",name:"勇氣傳遞 (Courage Transfer)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"自身獲得持續效果時有20%機率觸發，10s內將自身的部分持續效果傳遞給15米範圍內的友方單位。(CD：25s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__yongqichuandi.webp",lv:"3",cooldown:"25s",source:"自然天賦"},
+			{ids:"170613",name:"血脈壓制 (Bloodline Suppression)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"受到攻擊時有25%機率觸發，使攻擊者陷入「怯戰」狀態，持續10s：期間其單次傷害不會超過300點，對首領級敵人效果減弱。(CD：25s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__xuemaiyazhi.webp",lv:"3",cooldown:"25s",source:"自然天賦"},
+			{ids:"170623",name:"迅捷共鳴・攻 (Swiftness Resonance - Attack)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻擊命中目標時有20%機率觸發，增加自身「移動速度」與「攻擊速度」中較低的一項，幅度為較高項的50%，持續12s。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__xunjiegongminggong.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170633",name:"迅捷共鳴・防 (Swiftness Resonance - Defense)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"防禦敵人攻擊時有25%機率觸發，增加自身「移動速度」與「攻擊速度」中較低的一項，幅度為較高項的50%，持續12s。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__xunjiegongmingfang.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170643",name:"死灰復燃 (Resurgence)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"在生命值回滿或者從瀕死回到正常狀態時，使自己進入10秒「暴走」狀態：增加20%攻速、移速，有20%機率將造成傷害的25%轉化為生命恢復，免疫絕大部分減速效果。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__sihuifuran.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170653",name:"逆閃防禦 (Reverse-Dodge Defense)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"防禦敵人攻擊時有15%機率觸發，使其「逆閃」在5s內閃避方向翻轉。(CD：20s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__nishanfangyu.webp",lv:"3",cooldown:"20s",source:"自然天賦"},
+			{ids:"170663",name:"逆閃彈反 (Reverse-Dodge Reflect)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"彈反敵人攻擊時，使其「逆閃」在10s內閃避方向翻轉。(CD：25s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__nishantanfan.webp",lv:"3",cooldown:"25s",source:"自然天賦"},
+			{ids:"170673",name:"爆燃之種 (Seed of Combustion)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"使用武器攻擊處於點燃狀態的敵人有15%的機率對其施加持續5s的「爆燃之種」：目標在翻滾和閃避時將產生爆燃，使6米範圍內的目標點燃。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__baoranzhizhong.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170683",name:"爆毒之種 (Seed of Vemon)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"使用武器攻擊處於中毒狀態的敵人有15%的機率對其施加持續5秒的「爆毒之種」：目標在翻滾和閃避時將產生爆毒，使6米範圍內的目標中毒。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__baoduzhizhong.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170693",name:"爆血之種 (Seed of Bloodboil)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"使用武器攻擊處於流血狀態的敵人有15%的機率對其施加持續5s的「爆血之 種」：目標在翻滾和閃避時將產生爆血，使6米範圍內的目標流血。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__baoxuezhizhong.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170703",name:"移速竊取 (Movement Speed Steal)",category:["戰鬥類"],faction:"蠻角",job:"通用",desc:"【蠻角專屬】攻擊命中目標時開15%機率觸發，竊取目標6%的移動速度，轉換為自身的提升，持續10s，至多疊加5層。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__yisuqiequ.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170713",name:"攻速竊取 (Attack Speed Steal)",category:["戰鬥類"],faction:"荒狼",job:"通用",desc:"【荒狼專屬】攻擊命中目標時有15%機率觸發，竊取目標5%的攻擊速度，轉換為自身的提升，持續10s，至多疊加5層。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__gongsuqiequ.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170723",name:"刺鞭增傷 (Spiked Whip Damage Boost)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"使用刺鞭威力更強，刺鞭類武器造成的傷害提升9%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu__cibianzengshang.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170733",name:"詭計之手 (Sleight of Hand)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"在發射前矢或者投擲物時有25%機率不消耗對應道具。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_guijizhishou.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170753",name:"多重投擲 (Multi-Throw)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"使用投擲物時有20%的機率額外丟出數個。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_duochongtouzhi.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170763",name:"閃避投擲 (Throw Dodge)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"進行閃避時觸發自動投擲，消耗快捷欄中的飛斧、飛刀或擲矛，攻擊15米內的敵人，若命中目標使其減速50%，持續5s秒。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_shanbitouzhi.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170773",name:"牽引投擲 (Grapple-Throw)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"使用飛斧、飛刀或擲矛命中目標時，可以將目標拉至身邊，並使其無法翻滾，持續5s。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_qianyintouzhi.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170783",name:"爆發共鳴・攻 (Resonant Burst - Attack)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻擊命中目標時有20%機率觸發，增加自身「暴擊」與「暴 抗」中較低的一項，幅度為較高項的30%，持續12s。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_baofagongming1.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170793",name:"爆發流轉・攻 (Burst Alteration - Attack)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻擊命中目標時有15%機率觸發，將目前的全部「暴抗」以50%比例轉換為「暴擊」，持續12s。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_baofazhuanhuan1.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170803",name:"爆發共鳴・防 (Resonant Burst - Defense)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"防禦敵人攻擊時有25%機率觸發，增加自身「暴擊」與「暴抗」中較低的一項，幅度為較高項的30%，持續12s。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_baofagongming2.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170813",name:"爆發流轉・防 (Burst Alteration - Defense)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"防禦敵人攻擊時有20%機率觸發，將目前一半的「暴擊」轉化為「暴抗」，持續12s。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_baofazhuanhuan2.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170823",name:"伺機連襲 (Opportunistic Chain Strike)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"成功閃避敵人攻擊後，獲得1層持續3秒的「連襲」狀態：下一次從背後發動的武器攻擊依據層數額外造成對應次數的傷害。至多疊加4層。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_luetijifeng.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170833",name:"燃魂狙擊 (Soulflame Sniping)",category:["戰鬥類"],faction:"通用",job:"獵人",desc:"【獵人專屬】拉弓蓄力狀態下生命值持續流失，射出的箭矢將附加蓄力期間流失生命值的100%作為傷害，在恰當的時機發射可大幅提升效果。(額外傷害不會超過自身最大生命值)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_ranhunjuji.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"170843",name:"破膽重擊 (Intimidating Strike)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻擊命中近距離目標時有15%機率觸發，使敵人陷入「怯戰」狀態，持續6秒：期間其單次傷害不會超過300點，對首領級敵人效果減弱。(CD：15s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_podanzhongji.webp",lv:"3",cooldown:"15s",source:"自然天賦"},
+			{ids:"170853",name:"全盛戰意 (Prime Battle Spirit)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻擊命中目標時若自身生命值、軔性值全滿，則獲得8秒「以攻代守」狀態：期間自己的攻擊無法被彈反，並使自己的任意武器攻擊也能夠彈反敵人的攻擊。(CD：25s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_quanshengzhanyi.webp",lv:"3",cooldown:"25s",source:"自然天賦"},
+			{ids:"170863",name:"迅捷流轉・攻 (Swiftness Alteration - Attack)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"攻擊命中目標時有15%機率觸發，將目前25%的「移速」轉換為「攻速」，持續12s。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_xunjieliuzhuan1.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+			{ids:"170873",name:"迅捷流轉・防 (Swiftness Alteration - Defense)",category:["戰鬥類"],faction:"通用",job:"通用",desc:"防禦敵人攻擊時有20%機率觸發，將目前25%的「攻速」轉換為「移速」，持續12s。(CD：30s)",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_xunjieliuzhuan2.webp",lv:"3",cooldown:"30s",source:"自然天賦"},
+
+			// --- 通用類 ---
+			{ids:"110013",name:"駝牛 (Camel Cow)",category:["通用類"],faction:"通用",job:"通用",desc:"對背負重物頗有心得，最大負重提升60%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_fuzhongtisheng.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"110023",name:"耐餓 (Anti-Hunger)",category:["通用類"],faction:"通用",job:"通用",desc:"身體儲備食物更多更加耐餓，飽食度最大值提升40%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_kangjie.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"110033",name:"耐渴 (Anti-Thirst)",category:["通用類"],faction:"通用",job:"通用",desc:"身體儲備水分更多更加耐渴，最大水分提升40%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_kangkouke.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"110043",name:"遠視 (Long Sight)",category:["通用類"],faction:"通用",job:"通用",desc:"視力非凡，視野距離提升10米。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_qianliyan.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"110053",name:"耳聰 (Good Hearing)",category:["通用類"],faction:"通用",job:"通用",desc:"聽力敏感，能夠聽到的聲音比常人低15分貝。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_shunfenger.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"120013",name:"活血 (Blood Activating)",category:["通用類"],faction:"通用",job:"通用",desc:"氣血旺盛，生命恢復速度提升200%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_shengminghuifujiakuai.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"120023",name:"體能充沛 (Full Stamina)",category:["通用類"],faction:"通用",job:"通用",desc:"體力恢復效率更高，每次恢復體力時可 以獲得本次恢復量50%的額外恢復。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_tilihuifujiakuai.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"120033",name:"緩慢吸收【食】 (Slow Absorption [Food])",category:["通用類"],faction:"通用",job:"通用",desc:"食物消化更慢，食物消耗降低50%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_baoshiduxiaohaosudujiangdi.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"120043",name:"緩慢吸收【水】 (Slow Absorption [Water])",category:["通用類"],faction:"通用",job:"通用",desc:"水分吸收慢，水分消耗降低50%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_shuifenxiaohaosudujiangdi.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"120053",name:"快速成長 (Rapid Growth)",category:["通用類"],faction:"通用",job:"通用",desc:"善於反思過往，角色獲得的成長經驗提升80%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_kuaisuchengzhang.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"150073",name:"天賦異稟 (Extraordinary Talent)",category:["通用類"],faction:"通用",job:"通用",desc:"眾神賦予的特殊運氣，使所有機率觸發的天賦機率提升20%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_xingyun.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160423",name:"快速包紮 (Quick Bandaging)",category:["通用類"],faction:"通用",job:"通用",desc:"曾經多次在部落組織的包紮大賽中獲得冠軍，使用繃帶時包紮時間縮短50%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_kuaisubaoza.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160703",name:"背包擴容 (Backpack Expansion)",category:["通用類"],faction:"通用",job:"通用",desc:"背包暗藏玄機能容納更多物品，比常人的背包格子數量提升30格。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_beibaokuorong.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+
+			// --- 工匠類 ---
+			{ids:"160393",name:"伐木巧手 (Logging Pro)",category:["工作類"],faction:"毒牙",job:"通用",desc:"【毒牙專屬】伐木不自其本，砍伐過的樹木再生時間縮短40%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_famuqiaoshou.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160403",name:"礦脈守護 (Vein Protection)",category:["工作類"],faction:"毒牙",job:"通用",desc:"【毒牙專屬】刨礦不毀其脈，挖過的礦石再生時間縮短40%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_kuangmaishouhu.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160413",name:"種植能手 (Planting Pro)",category:["工作類"],faction:"毒牙",job:"通用",desc:"【毒牙專屬】培育作物十分用心，自己親手種植採摘的植物產量提升20%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_zhongzhinengshou.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160713",name:"精製防具 (Refined Armor)",category:["工作類"],faction:"火石",job:"通用",desc:"【火石專屬】手藝精湛，製造防具時產出高品質機率提升10%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jingzhifangju.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160723",name:"武器精鑄 (Weapon Enhancement)",category:["工作類"],faction:"火石",job:"通用",desc:"【火石專屬】匠心鑄造，打造武器時產出高品質機率提升10%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_wuqijingzhu.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160733",name:"精製工具 (Refined Tool)",category:["工作類"],faction:"通用",job:"匠人",desc:"【匠人專屬】工具製作獨具匠心，打造工具時產出高品質的機率提升10%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jingzhizhubao.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160743",name:"木石加速 (Accelerate Wood & Stone)",category:["工作類"],faction:"通用",job:"雜工",desc:"【雜工專屬】手腳麻利，完成木石工作的時間縮短30%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jiasupaomu.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160753",name:"切石加速 (切石加速)",category:["工作類"],faction:"通用",job:"通用",desc:"切石熟手，完成切石工作的時間縮短30%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jiasuqieshi.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160763",name:"燒窯加速 (Accelerate Kiln)",category:["工作類"],faction:"通用",job:"雜工",desc:"【雜工專屬】高溫作業亦不能阻擋其熱情，完成燒窯工作的時間縮短30%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jiasuronglian.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160773",name:"製皮加速 (Accelerate leatherworking)",category:["工作類"],faction:"通用",job:"雜工",desc:"【雜工專屬】製皮能手，完成製皮工作的時間縮短30%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jiasuroupi.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160783",name:"紡織加速 (Accelerate Weaving)",category:["工作類"],faction:"通用",job:"雜工",desc:"【雜工專屬】紡織能手，完成紡織工作的時間縮短30%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jiasufangzhi.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160793",name:"製陶加速 (Accelerate potting)",category:["工作類"],faction:"通用",job:"雜工",desc:"【雜工專屬】對製陶工藝運用自如，完成製陶工作的時間縮短30%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jiasuzhitao.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160803",name:"研磨加速 (研磨加速)",category:["工作類"],faction:"通用",job:"通用",desc:"精通研磨手藝，完成研磨工作的時間縮短30%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jiasuyanmo.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160813",name:"工匠製造加速 (Crafting Speed Up)",category:["工作類"],faction:"通用",job:"匠人",desc:"【匠人專屬】精通加工，完成工匠製作任務的時間縮短30%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jiasuqijuzhizao.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160823",name:"武器製造加速 (Accelerate Weapon Crafting)",category:["工作類"],faction:"通用",job:"匠人",desc:"【匠人專屬】對武器製造頗有心得，完成武器製造任務的時間縮短30%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jiasuwuqizhizao.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160833",name:"防具製造加速 (Accelerate Armor Crafting)",category:["工作類"],faction:"通用",job:"匠人",desc:"【匠人專屬】精通甲胃工藝，完成防具製造任務的時間縮短30%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jiasufangjuzhizao.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160843",name:"珠寶製造加速 (珠宝制造加速)",category:["工作類"],faction:"通用",job:"通用",desc:"精通珠寶工藝流程，完成珠寶製作工作的時間縮短30%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jiasuzhubaozhizao.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160853",name:"建築製造加速 (建筑制造加速)",category:["工作類"],faction:"通用",job:"通用",desc:"熟練建築製造工藝，完成建築製造工作的時間縮短30%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jiasujianzhuzhizao.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160863",name:"煉金加速 (Accelerate Alchemy)",category:["工作類"],faction:"通用",job:"匠人",desc:"【匠人專屬】對煉金頗有天分，完成煉金任務的時問縮短30%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jiasulianjin.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"160873",name:"烹飪加速 (Accelerate Cooking)",category:["工作類"],faction:"通用",job:"匠人",desc:"【匠人專屬】對烹飪頗有心得，在進行烹飪時完成食物的時間縮短30%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_jiasupengren.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"171003",name:"淬鋒巧手 (Skillful Hand)",category:["工作類"],faction:"荒狼",job:"通用",desc:"【荒狼專屬】身為匠人在製作武器時有10%的機率至多增加2個額外屬性。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_cuifengqiaoshou.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"171013",name:"巧鑄防具 (Masterwork Armor)",category:["工作類"],faction:"蠻角",job:"通用",desc:"【蠻角專屬】身為匠人在製作防具時有10%的機率至多增加2個額外屬性。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_qiaozhufangju.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"171023",name:"制甲專注 (Armorer's Focus)",category:["工作類"],faction:"通用",job:"匠人",desc:"【匠人專屬】製作防具時異常專注，產出高品質機率提升10%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_zhijiazhuanzhu.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"171033",name:"鍛器專注 (Weaponsmith's Focus)",category:["工作類"],faction:"通用",job:"匠人",desc:"【匠人專屬】鍛造武器時異常專注，產出高品質機率提升10%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_duanqizhuanzhu.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"171043",name:"武器精修 (Weapon Maintenance)",category:["工作類"],faction:"荒狼",job:"通用",desc:"【荒狼專屬】身為匠人修理武器的耐久損耗降低50%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_wuqijingxiu.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"171053",name:"防具精修 (Armor Maintenance)",category:["工作類"],faction:"蠻角",job:"通用",desc:"【蠻角專屬】身為匠人修理護甲的耐久損耗降低50%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_fangjujingxiu.webp",lv:"3",cooldown:"無",source:"自然天賦"},
+			{ids:"171063",name:"工具精修 (Tool Maintenance)",category:["工作類"],faction:"通用",job:"匠人",desc:"【匠人專屬】修理工 具的耐久損耗降低50%。",icon:"https://saraserenity.net/soulmask/img/ng/tianfu_gongjujingxiu.webp",lv:"3",cooldown:"無",source:"自然天賦"}
+        ];
+
+        // 狀態管理
+        let selectedFactions = new Set(['全部']);
+        let selectedJobs = new Set(['全部']);
+
+        function setupMultiSelect(containerId, set) {
+            const buttons = document.querySelectorAll(`#${containerId} .multi-btn`);
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const val = btn.getAttribute('data-value');
+                    
+                    if (val === '全部') {
+                        set.clear();
+                        set.add('全部');
+                    } else {
+                        set.delete('全部');
+                        if (set.has(val)) {
+                            set.delete(val);
+                            if (set.size === 0) set.add('全部');
+                        } else {
+                            set.add(val);
+                        }
+                    }
+                    
+                    // 更新 UI 狀態
+                    buttons.forEach(b => {
+                        const bVal = b.getAttribute('data-value');
+                        if (set.has(bVal)) b.classList.add('active');
+                        else b.classList.remove('active');
+                    });
+                    
+                    renderTalents();
+                });
+            });
+        }
+
+        function renderTalents() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const categoryValue = document.getElementById('categorySelect').value;
+            
+            const grid = document.getElementById('talentGrid');
+            const noResults = document.getElementById('noResults');
+            const countDisplay = document.getElementById('resultCount');
+
+            const filtered = talents.filter(t => {
+                // 1. 基礎關鍵字搜尋 (AND)
+                const matchSearch = t.name.toLowerCase().includes(searchTerm) || 
+                                    t.desc.toLowerCase().includes(searchTerm) ||
+                                    t.ids.includes(searchTerm);
+                
+                // 2. 類別篩選 (只要天賦類別陣列中含有選中的類別即可)
+                const matchCategory = categoryValue === "全部" || t.category.includes(categoryValue);
+                
+                // 3. 陣營與職業 (AND 邏輯：必須同時滿足選中的陣營群組與職業群組)
+                const factionMatch = selectedFactions.has('全部') || selectedFactions.has(t.faction);
+                const jobMatch = selectedJobs.has('全部') || selectedJobs.has(t.job);
+                
+                return matchSearch && matchCategory && factionMatch && jobMatch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = "";
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+                grid.innerHTML = filtered.map(t => `
+                    <div class="skill-card p-5 rounded-lg flex gap-4 border-l-4 border-l-amber-500/30 hover:border-l-amber-500 animate-fadeIn">
+                        <div class="w-16 h-16 bg-slate-900 rounded flex-shrink-0 border border-slate-700 flex items-center justify-center text-3xl shadow-inner">
+                            <img src="${t.icon}"  alt="這是圖片" title="${t.name}">
+                        </div>
+                        <div class="flex-grow">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <h3 class="text-xl font-bold text-white">${t.name}</h3>
+                                    <span class="ids-tag mt-1 inline-block">ID: ${t.ids}</span>
+                                </div>
+                                <div class="flex flex-col items-end gap-1">
+                                    <span class="text-[10px] bg-amber-600/20 text-amber-500 px-2 py-0.5 rounded border border-amber-600/30 font-bold uppercase">${t.faction}</span>
+                                    <div class="flex flex-wrap gap-1 justify-end">
+                                        ${t.category.map(cat => `<span class="text-[10px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded">${cat}</span>`).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="mt-3 text-slate-300 text-sm leading-relaxed bg-slate-900/30 p-2.5 rounded">
+                                ${t.desc}
+                            </p>
+                            <div class="mt-4 flex justify-between items-center text-[12px]">
+                                <div class="flex gap-3">
+                                    <span class="text-slate-400">專屬職業：<b class="text-slate-200">${t.job}</b></span>
+									<span class="text-slate-400">LV：<b class="text-slate-200">${t.lv}</b></span>
+                                    <span class="text-slate-400">冷卻：<b class="text-slate-200">${t.cooldown}</b></span>
+                                </div>
+                                <div class="text-slate-500 italic text-[10px]">
+                                    來源: ${t.source}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            countDisplay.innerText = `篩選結果：${filtered.length} 項 / 資料庫：${talents.length} 項`;
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = "";
+            document.getElementById('categorySelect').value = "全部";
+            
+            selectedFactions.clear();
+            selectedFactions.add('全部');
+            document.querySelectorAll('#factionButtons .multi-btn').forEach(b => {
+                if(b.getAttribute('data-value') === '全部') b.classList.add('active');
+                else b.classList.remove('active');
+            });
+
+            selectedJobs.clear();
+            selectedJobs.add('全部');
+            document.querySelectorAll('#jobButtons .multi-btn').forEach(b => {
+                if(b.getAttribute('data-value') === '全部') b.classList.add('active');
+                else b.classList.remove('active');
+            });
+
+            renderTalents();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupMultiSelect('factionButtons', selectedFactions);
+            setupMultiSelect('jobButtons', selectedJobs);
+            
+            document.getElementById('searchInput').addEventListener('input', renderTalents);
+            document.getElementById('categorySelect').addEventListener('change', renderTalents);
+            
+            renderTalents();
+        });
+    </script>
+</body>
+</html>
