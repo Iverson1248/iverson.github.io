@@ -20,10 +20,16 @@
             background-color: var(--card-bg);
             border: 1px solid #334155;
             transition: all 0.2s ease;
+            position: relative;
         }
         .skill-card:hover {
             border-color: var(--accent-gold);
             transform: translateY(-2px);
+        }
+        .skill-card.pinned {
+            border-color: var(--accent-gold);
+            background-color: #1e1b12; /* 稍微帶點金色的暗底 */
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.1);
         }
         .ids-tag {
             font-family: monospace;
@@ -33,7 +39,6 @@
             font-size: 0.75rem;
             color: #94a3b8;
         }
-        /* 多選按鈕樣式 */
         .multi-btn {
             background-color: #0f172a;
             border: 1px solid #475569;
@@ -63,25 +68,45 @@
         .animate-fadeIn {
             animation: fadeIn 0.3s ease forwards;
         }
+        /* 自定義 Checkbox 樣式 */
+        .pin-checkbox {
+            appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid #475569;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .pin-checkbox:checked {
+            background-color: var(--accent-gold);
+            border-color: var(--accent-gold);
+        }
+        .pin-checkbox:checked::after {
+            content: '📌';
+            font-size: 0.75rem;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
     </style>
 </head>
 <body>
 
     <nav class="bg-slate-900 border-b border-slate-700 p-4 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-amber-500">SOULMASK <span class="text-white font-light text-lg ml-2">天賦技能資料庫 更新【2026-05-12】</span></h1>
+            <h1 class="text-2xl font-bold text-amber-500">SOULMASK <span class="text-white font-light text-lg ml-2">天賦技能資料庫 更新【2026-05-13】</span></h1>
             <div class="space-x-6 hidden md:flex text-sm">
-                <a href="#" class="hover:text-amber-500 transition">首頁</a>
-                <a href="#" class="text-amber-500 border-b-2 border-amber-500">天賦</a>
+                <span class="text-slate-400">已選定 <span id="pinTotal" class="text-amber-500 font-bold">0</span> 項鎖定天賦</span>
             </div>
         </div>
     </nav>
 
     <main class="max-w-7xl mx-auto p-6">
-        <!-- 搜尋與進階過濾器 -->
         <section class="mb-8 bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700">
             <div class="space-y-6">
-                <!-- 第一行：關鍵字與類別 -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">關鍵字搜尋</label>
@@ -104,11 +129,10 @@
                     </div>
                 </div>
 
-                <!-- 第二行：陣營多選 -->
                 <div>
                     <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">所屬陣營 (多選)</label>
                     <div id="factionButtons" class="flex flex-wrap gap-2">
-                        <button class="multi-btn active" data-value="全部">全部</button>
+						<button class="multi-btn active" data-value="全部">全部</button>
                         <button class="multi-btn" data-value="火石">火石</button>
                         <button class="multi-btn" data-value="毒牙">毒牙</button>
                         <button class="multi-btn" data-value="利爪">利爪</button>
@@ -117,9 +141,8 @@
                     </div>
                 </div>
 
-                <!-- 第三行：職業多選 -->
                 <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">推薦職業 (多選)</label>
+                    <label class="block text-xs font-semibold text-slate-400 mb-2 uppercase tracking-wider">選擇職業 (多選)</label>
                     <div id="jobButtons" class="flex flex-wrap gap-2">
                         <button class="multi-btn active" data-value="全部">全部</button>
                         <button class="multi-btn" data-value="力工">力工</button>
@@ -134,11 +157,10 @@
 
             <div class="mt-6 flex justify-between items-center text-xs border-t border-slate-700 pt-4">
                 <span class="text-slate-400" id="resultCount">計算中...</span>
-                <span class="text-amber-500 font-mono">FILTER_LOGIC: (Faction AND Job) AND Category_Contains</span>
+                <span class="text-amber-500 font-mono italic">提示：勾選天賦後將無視篩選條件並永久置頂</span>
             </div>
         </section>
 
-        <!-- 資料列表容器 -->
         <div id="talentGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- JavaScript 動態渲染 -->
         </div>
@@ -148,12 +170,7 @@
             <p class="text-xl text-slate-500 font-light">找不到符合條件的天賦資料</p>
             <button onclick="resetFilters()" class="mt-4 text-amber-500 hover:underline">清除所有過濾條件</button>
         </div>
-
     </main>
-
-    <footer class="mt-20 border-t border-slate-700 p-10 text-center text-slate-500 text-sm bg-slate-900/50">
-        <p>© 2026 靈魂面甲繁體資料庫</p>
-    </footer>
 
     <script>
         const talents = [
@@ -397,49 +414,49 @@
 			
 			// --- 部落類 ---
 			{ids:"100113",name:"部落・倖存者 (Tribe - Survivor)",category:["部落類"],faction:"通用",job:"通用",desc:"身為部落戰爭的倖存者，擁有力量才能在這片土地生存，最大負重提高20%。",icon:"Images/Icon_NG_BuLuo_xingcunzhe.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"400013",name:"部落・侵襲之力 (Tribe - Power of Erosion)",category:["部落類"],faction:"通用",job:"通用",desc:"身為利爪部落族人，對火石部落、毒牙部落、流放者、掠奪者造成的傷害提升8%。",icon:"Images/Icon_NG_BuLuo_LiZhua.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"400023",name:"部落・狂野之力 (Tribe - Wild Power)",category:["部落類"],faction:"通用",job:"通用",desc:"身為利爪部落族人，暴擊傷害永久提升10%。",icon:"Images/Icon_NG_BuLuo_LiZhua.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"400033",name:"部落・暴擊之力 (Tribe - Power of Crit)",category:["部落類"],faction:"通用",job:"通用",desc:"身為利爪部落族人，暴擊率永久提升8%。",icon:"Images/Icon_NG_BuLuo_LiZhua.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"410013",name:"部落・抵禦之力 (Tribe - Power of Defense)",category:["部落類"],faction:"通用",job:"通用",desc:"身為火石部落族人，防禦力永久提升9%。",icon:"Images/Icon_NG_BuLuo_HuoShi.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"410023",name:"部落・堅韌之力 (Tribe - Power of Tenacity)",category:["部落類"],faction:"通用",job:"通用",desc:"身為火石部落族人，最大韌性永久提高25點 。",icon:"Images/Icon_NG_BuLuo_HuoShi.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"410033",name:"部落・暴抗之力 (Tribe - Power of Crit Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"身為火石部落族人，暴擊抵抗永久提升9%。",icon:"Images/Icon_NG_BuLuo_HuoShi.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420013",name:"部落・毒素抵抗 (Tribe - Poison Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"身為毒牙部落族人，毒抗永久提升30。",icon:"Images/Icon_NG_BuLuo_DuYa.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420023",name:"部落・毒素免疫 (Tribe - Poison Immunity)",category:["部落類"],faction:"通用",job:"通用",desc:"身為毒牙部落族人，受到的毒素傷害永久降低25%。",icon:"Images/Icon_NG_BuLuo_DuYa.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420033",name:"部落・暴傷寒冷抗性 (Tribe - Crit DMG & Cold Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在雪山的利爪族人產生了天然抗性，寒冷抗性提升15，暴擊傷害提升10%。",icon:"Images/Icon_NG_BuLuo_LiZhua.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420043",name:"部落・暴擊寒冷抗性 (Tribe - Crit & Cold Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在雪山的利爪族人產生了天然抗性，寒冷抗性提升15，暴擊率提升8%。",icon:"Images/Icon_NG_BuLuo_LiZhua.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420053",name:"部落・堅韌寒冷抗性 (Tribe - Resilience & Cold Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在雪山的火石族人產生了天然抗性，寒冷抗性提升15，最大韌性提升25。",icon:"Images/Icon_NG_BuLuo_HuoShi.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420063",name:"部落・防禦寒冷抗性 (Tribe - DEF & Cold Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在雪山的火石族人產生了天然抗性，寒冷抗性提升15，防禦力提升9%。",icon:"Images/Icon_NG_BuLuo_HuoShi.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420073",name:"部落・毒素寒冷抗性 (Tribe - Poison & Cold Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在雪山的毒牙族人產生了天然抗性，寒冷抗性提升15，毒素抗性提升15。",icon:"Images/Icon_NG_BuLuo_DuYa.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420083",name:"部落・毒免寒冷抗性 (Tribe - Poison DMG Immunity & Cold Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在雪山的毒牙族人產生了天然抗性，寒冷抗性提升15，受到的毒素傷害降低25%。",icon:"Images/Icon_NG_BuLuo_DuYa.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420093",name:"部落・暴傷輻射抗性 (Tribe - Crit DMG & Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在荒原的利爪族人產生了天然抗性，輻射抗性提升15，暴擊傷害提升10%。",icon:"Images/Icon_NG_BuLuo_LiZhua.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420103",name:"部落・暴擊輻射抗性 (Tribe - Crit & Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在荒原的利爪族人產生了天然抗性，輻射抗性提升15，暴擊率提升8%。",icon:"Images/Icon_NG_BuLuo_LiZhua.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420113",name:"部落・堅韌輻射抗性 (Tribe - Resilience & Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在荒原的火石族人產生了天然抗性，輻射抗性提升15，最大韌性提升25。",icon:"Images/Icon_NG_BuLuo_HuoShi.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420123",name:"部落・防禦輻射抗性 (Tribe - DEF & Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在荒原的火石族人產生了天然抗性，輻射抗性提升15，防禦力提升9%。",icon:"Images/Icon_NG_BuLuo_HuoShi.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420133",name:"部落・毒素輻射抗性 (Tribe - Poison & Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在荒原的毒牙族人產生了天然抗性，輻射抗性提升15，毒素抗性提升15。",icon:"Images/Icon_NG_BuLuo_DuYa.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420143",name:"部落・毒素輻射抗性 (Tribe - Poison & Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在荒原的毒牙族人產生了天然抗性，輻射抗性提升15，受到的毒素傷害降低25%。",icon:"Images/Icon_NG_BuLuo_DuYa.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420153",name:"部落・暴傷炎熱抗性 (Tribe - Crit DMG & Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在火山的利爪族人產生了天然抗性，炎熱抗性提升15，暴擊傷害提升10%。",icon:"Images/Icon_NG_BuLuo_LiZhua.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420163",name:"部落・暴擊炎熱抗性 (Tribe - Crit DMG & Scorching Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在火山的利爪族人產生了天然抗性，炎熱抗性提升15，暴擊率提升8%。",icon:"Images/Icon_NG_BuLuo_LiZhua.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420173",name:"部落・堅韌炎熱抗性 (Tribe - Resilience & Scorching Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在火山的火石族人產生了天然抗性，炎熱抗性提升15，最大韌性提升25。",icon:"Images/Icon_NG_BuLuo_HuoShi.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420183",name:"部落・防禦炎熱抗性 (Tribe - DEF & Scorching Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在火山的火石族人產生了天然抗性，炎熱抗性提升15，防禦力提升9%。",icon:"Images/Icon_NG_BuLuo_HuoShi.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420193",name:"部落・毒素炎熱抗性 (Tribe - Poison & Scorching Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在火山的毒牙族人產生了天然抗性，炎熱抗性提升15，毒素抗性提升15。",icon:"Images/Icon_NG_BuLuo_DuYa.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420203",name:"部落・毒免炎熱抗性 (Tribe - Poison DMG Immunity & Scorching Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在火山的毒牙族人產生了天然抗性，炎熱抗性提升15，受到的毒素傷害降低25%。",icon:"Images/Icon_NG_BuLuo_DuYa.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420403",name:"流放者・寒冷抗性 (Outcast - Cold Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居雪山的人對寒冷早已適應，寒冷抗性提升15。",icon:"Images/Icon_NG_BuLuo_liufangzhe.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420413",name:"流放者・輻射抗性 (Outcast - Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居荒原的人對輻射早已適應，輻射抗性提升15。",icon:"Images/Icon_NG_BuLuo_liufangzhe.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420423",name:"流放者・炎熱抗性 (Outcast - Scorching Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居火山的人對炎熱早已適應，炎熱抗性提升15。",icon:"Images/Icon_NG_BuLuo_liufangzhe.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420503",name:"部落・荒狼之息 (Tribe - Breath of the Wildwolf)",category:["部落類"],faction:"通用",job:"通用",desc:"荒狼部落的族人耐力非凡，在恢復體力時恢復量提升15%，攻擊附加麻痺傷害6。",icon:"Images/Icon_NG_BuLuo_HuangLang.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420513",name:"部落・荒狼之力 (Tribe - Might of the Wildwolf)",category:["部落類"],faction:"通用",job:"通用",desc:"荒狼部落的族人冷血無情，傷害提升8%，攻擊附加流血傷害6。",icon:"Images/Icon_NG_BuLuo_HuangLang.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420523",name:"部落・耐力炎熱抗性 (Tribe - Endurance & Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居炎熱地帶的荒狼族人產生了天然抗性，炎熱抗性提升15，恢復體力時恢復量提升15%，攻擊附加麻痺傷害6。",icon:"Images/Icon_NG_BuLuo_HuangLang.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420533",name:"部落・增傷炎熱抗性 (Tribe - Increased Damage & Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居炎熱地帶的荒狼族人產生了天然抗性，炎熱抗性提升15，傷害提升8%，攻擊附加出血傷害6。",icon:"Images/Icon_NG_BuLuo_HuangLang.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420543",name:"部落・耐力輻射抗性 (Tribe - Endurance & Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居輻射地帶的荒狼族人產生了天然抗性，輻射抗性提升15，恢復體力時恢復量提升15%，攻擊附加麻痺傷害6。",icon:"Images/Icon_NG_BuLuo_HuangLang.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420553",name:"部落・增傷輻射抗性 (Tribe - Increased Damage & Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居輻射地帶的荒狼族人產生了天然抗性，輻射抗性提升15，傷害提升8%，攻擊附加流血傷害6。",icon:"Images/Icon_NG_BuLuo_HuangLang.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420603",name:"部落・蠻角之息 (Tribe - Breath of the Savagehorn)",category:["部落類"],faction:"通用",job:"通用",desc:"蠻角部落族人有著頑強的意志，最大體力增加20，削韌防御提升10%。",icon:"Images/Icon_NG_BuLuo_ManJiao.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420613",name:"部落・蠻角之力 (Tribe - Might of the Savagehorn)",category:["部落類"],faction:"通用",job:"通用",desc:"蠻角部落的族人穩重強壯，傷害減免提升8%，攻擊附加昏迷傷害6。",icon:"Images/Icon_NG_BuLuo_ManJiao.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420623",name:"部落・體力炎熱抗性 (Tribe - Stamina & Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居炎熱地帶的蠻角族人產生了天然抗性，炎熱抗性提升15，最大體力增加20，削韌防禦提升10%。",icon:"Images/Icon_NG_BuLuo_ManJiao.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420633",name:"部落・免傷炎熱抗性 (Tribe - DMG Immunity & Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居炎熱地帶的蠻角族人產生了天然抗性，炎熱抗性提升15，傷害減免提升8%，攻擊附加昏迷傷害6。",icon:"Images/Icon_NG_BuLuo_ManJiao.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420643",name:"部落・體力輻射抗性 (Tribe - Stamina & Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居輻射地帶的蠻角族人產生了天然抗性，輻射抗性提升15，最大體力增加20，削韌防禦提升10%。",icon:"Images/Icon_NG_BuLuo_ManJiao.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420653",name:"部落・免傷輻射抗性 (Tribe - DMG Immunity & Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居輻射地帶的蠻角族人產生了天然抗性，輻射抗性提升15，傷害減免提升8%，攻擊附加昏迷傷害6。",icon:"Images/Icon_NG_BuLuo_ManJiao.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420703",name:"流放者・炎熱抗性 (Outcast - Scorching Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居炎熱地帶的流放者產生了天然抗性，炎熱抗性提升15。",icon:"Images/Icon_NG_BuLuo_liufangzhe.webp",lv:"3",cooldown:"無",source:"部落天賦"},
-{ids:"420713",name:"流放者・輻射抗性 (Outcast - Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居輻射地帶的流放者產生了天然抗性，輻射抗性提升15。",icon:"Images/Icon_NG_BuLuo_liufangzhe.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"400013",name:"部落・侵襲之力 (Tribe - Power of Erosion)",category:["部落類"],faction:"通用",job:"通用",desc:"身為利爪部落族人，對火石部落、毒牙部落、流放者、掠奪者造成的傷害提升8%。",icon:"Images/Icon_NG_BuLuo_LiZhua.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"400023",name:"部落・狂野之力 (Tribe - Wild Power)",category:["部落類"],faction:"通用",job:"通用",desc:"身為利爪部落族人，暴擊傷害永久提升10%。",icon:"Images/Icon_NG_BuLuo_LiZhua.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"400033",name:"部落・暴擊之力 (Tribe - Power of Crit)",category:["部落類"],faction:"通用",job:"通用",desc:"身為利爪部落族人，暴擊率永久提升8%。",icon:"Images/Icon_NG_BuLuo_LiZhua.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"410013",name:"部落・抵禦之力 (Tribe - Power of Defense)",category:["部落類"],faction:"通用",job:"通用",desc:"身為火石部落族人，防禦力永久提升9%。",icon:"Images/Icon_NG_BuLuo_HuoShi.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"410023",name:"部落・堅韌之力 (Tribe - Power of Tenacity)",category:["部落類"],faction:"通用",job:"通用",desc:"身為火石部落族人，最大韌性永久提高25點 。",icon:"Images/Icon_NG_BuLuo_HuoShi.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"410033",name:"部落・暴抗之力 (Tribe - Power of Crit Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"身為火石部落族人，暴擊抵抗永久提升9%。",icon:"Images/Icon_NG_BuLuo_HuoShi.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420013",name:"部落・毒素抵抗 (Tribe - Poison Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"身為毒牙部落族人，毒抗永久提升30。",icon:"Images/Icon_NG_BuLuo_DuYa.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420023",name:"部落・毒素免疫 (Tribe - Poison Immunity)",category:["部落類"],faction:"通用",job:"通用",desc:"身為毒牙部落族人，受到的毒素傷害永久降低25%。",icon:"Images/Icon_NG_BuLuo_DuYa.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420033",name:"部落・暴傷寒冷抗性 (Tribe - Crit DMG & Cold Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在雪山的利爪族人產生了天然抗性，寒冷抗性提升15，暴擊傷害提升10%。",icon:"Images/Icon_NG_BuLuo_LiZhua.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420043",name:"部落・暴擊寒冷抗性 (Tribe - Crit & Cold Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在雪山的利爪族人產生了天然抗性，寒冷抗性提升15，暴擊率提升8%。",icon:"Images/Icon_NG_BuLuo_LiZhua.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420053",name:"部落・堅韌寒冷抗性 (Tribe - Resilience & Cold Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在雪山的火石族人產生了天然抗性，寒冷抗性提升15，最大韌性提升25。",icon:"Images/Icon_NG_BuLuo_HuoShi.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420063",name:"部落・防禦寒冷抗性 (Tribe - DEF & Cold Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在雪山的火石族人產生了天然抗性，寒冷抗性提升15，防禦力提升9%。",icon:"Images/Icon_NG_BuLuo_HuoShi.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420073",name:"部落・毒素寒冷抗性 (Tribe - Poison & Cold Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在雪山的毒牙族人產生了天然抗性，寒冷抗性提升15，毒素抗性提升15。",icon:"Images/Icon_NG_BuLuo_DuYa.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420083",name:"部落・毒免寒冷抗性 (Tribe - Poison DMG Immunity & Cold Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在雪山的毒牙族人產生了天然抗性，寒冷抗性提升15，受到的毒素傷害降低25%。",icon:"Images/Icon_NG_BuLuo_DuYa.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420093",name:"部落・暴傷輻射抗性 (Tribe - Crit DMG & Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在荒原的利爪族人產生了天然抗性，輻射抗性提升15，暴擊傷害提升10%。",icon:"Images/Icon_NG_BuLuo_LiZhua.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420103",name:"部落・暴擊輻射抗性 (Tribe - Crit & Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在荒原的利爪族人產生了天然抗性，輻射抗性提升15，暴擊率提升8%。",icon:"Images/Icon_NG_BuLuo_LiZhua.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420113",name:"部落・堅韌輻射抗性 (Tribe - Resilience & Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在荒原的火石族人產生了天然抗性，輻射抗性提升15，最大韌性提升25。",icon:"Images/Icon_NG_BuLuo_HuoShi.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420123",name:"部落・防禦輻射抗性 (Tribe - DEF & Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在荒原的火石族人產生了天然抗性，輻射抗性提升15，防禦力提升9%。",icon:"Images/Icon_NG_BuLuo_HuoShi.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420133",name:"部落・毒素輻射抗性 (Tribe - Poison & Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在荒原的毒牙族人產生了天然抗性，輻射抗性提升15，毒素抗性提升15。",icon:"Images/Icon_NG_BuLuo_DuYa.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420143",name:"部落・毒素輻射抗性 (Tribe - Poison & Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在荒原的毒牙族人產生了天然抗性，輻射抗性提升15，受到的毒素傷害降低25%。",icon:"Images/Icon_NG_BuLuo_DuYa.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420153",name:"部落・暴傷炎熱抗性 (Tribe - Crit DMG & Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在火山的利爪族人產生了天然抗性，炎熱抗性提升15，暴擊傷害提升10%。",icon:"Images/Icon_NG_BuLuo_LiZhua.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420163",name:"部落・暴擊炎熱抗性 (Tribe - Crit DMG & Scorching Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在火山的利爪族人產生了天然抗性，炎熱抗性提升15，暴擊率提升8%。",icon:"Images/Icon_NG_BuLuo_LiZhua.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420173",name:"部落・堅韌炎熱抗性 (Tribe - Resilience & Scorching Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在火山的火石族人產生了天然抗性，炎熱抗性提升15，最大韌性提升25。",icon:"Images/Icon_NG_BuLuo_HuoShi.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420183",name:"部落・防禦炎熱抗性 (Tribe - DEF & Scorching Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在火山的火石族人產生了天然抗性，炎熱抗性提升15，防禦力提升9%。",icon:"Images/Icon_NG_BuLuo_HuoShi.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420193",name:"部落・毒素炎熱抗性 (Tribe - Poison & Scorching Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在火山的毒牙族人產生了天然抗性，炎熱抗性提升15，毒素抗性提升15。",icon:"Images/Icon_NG_BuLuo_DuYa.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420203",name:"部落・毒免炎熱抗性 (Tribe - Poison DMG Immunity & Scorching Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"長期生活在火山的毒牙族人產生了天然抗性，炎熱抗性提升15，受到的毒素傷害降低25%。",icon:"Images/Icon_NG_BuLuo_DuYa.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420403",name:"流放者・寒冷抗性 (Outcast - Cold Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居雪山的人對寒冷早已適應，寒冷抗性提升15。",icon:"Images/Icon_NG_BuLuo_liufangzhe.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420413",name:"流放者・輻射抗性 (Outcast - Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居荒原的人對輻射早已適應，輻射抗性提升15。",icon:"Images/Icon_NG_BuLuo_liufangzhe.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420423",name:"流放者・炎熱抗性 (Outcast - Scorching Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居火山的人對炎熱早已適應，炎熱抗性提升15。",icon:"Images/Icon_NG_BuLuo_liufangzhe.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420503",name:"部落・荒狼之息 (Tribe - Breath of the Wildwolf)",category:["部落類"],faction:"通用",job:"通用",desc:"荒狼部落的族人耐力非凡，在恢復體力時恢復量提升15%，攻擊附加麻痺傷害6。",icon:"Images/Icon_NG_BuLuo_HuangLang.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420513",name:"部落・荒狼之力 (Tribe - Might of the Wildwolf)",category:["部落類"],faction:"通用",job:"通用",desc:"荒狼部落的族人冷血無情，傷害提升8%，攻擊附加流血傷害6。",icon:"Images/Icon_NG_BuLuo_HuangLang.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420523",name:"部落・耐力炎熱抗性 (Tribe - Endurance & Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居炎熱地帶的荒狼族人產生了天然抗性，炎熱抗性提升15，恢復體力時恢復量提升15%，攻擊附加麻痺傷害6。",icon:"Images/Icon_NG_BuLuo_HuangLang.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420533",name:"部落・增傷炎熱抗性 (Tribe - Increased Damage & Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居炎熱地帶的荒狼族人產生了天然抗性，炎熱抗性提升15，傷害提升8%，攻擊附加出血傷害6。",icon:"Images/Icon_NG_BuLuo_HuangLang.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420543",name:"部落・耐力輻射抗性 (Tribe - Endurance & Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居輻射地帶的荒狼族人產生了天然抗性，輻射抗性提升15，恢復體力時恢復量提升15%，攻擊附加麻痺傷害6。",icon:"Images/Icon_NG_BuLuo_HuangLang.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420553",name:"部落・增傷輻射抗性 (Tribe - Increased Damage & Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居輻射地帶的荒狼族人產生了天然抗性，輻射抗性提升15，傷害提升8%，攻擊附加流血傷害6。",icon:"Images/Icon_NG_BuLuo_HuangLang.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420603",name:"部落・蠻角之息 (Tribe - Breath of the Savagehorn)",category:["部落類"],faction:"通用",job:"通用",desc:"蠻角部落族人有著頑強的意志，最大體力增加20，削韌防御提升10%。",icon:"Images/Icon_NG_BuLuo_ManJiao.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420613",name:"部落・蠻角之力 (Tribe - Might of the Savagehorn)",category:["部落類"],faction:"通用",job:"通用",desc:"蠻角部落的族人穩重強壯，傷害減免提升8%，攻擊附加昏迷傷害6。",icon:"Images/Icon_NG_BuLuo_ManJiao.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420623",name:"部落・體力炎熱抗性 (Tribe - Stamina & Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居炎熱地帶的蠻角族人產生了天然抗性，炎熱抗性提升15，最大體力增加20，削韌防禦提升10%。",icon:"Images/Icon_NG_BuLuo_ManJiao.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420633",name:"部落・免傷炎熱抗性 (Tribe - DMG Immunity & Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居炎熱地帶的蠻角族人產生了天然抗性，炎熱抗性提升15，傷害減免提升8%，攻擊附加昏迷傷害6。",icon:"Images/Icon_NG_BuLuo_ManJiao.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420643",name:"部落・體力輻射抗性 (Tribe - Stamina & Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居輻射地帶的蠻角族人產生了天然抗性，輻射抗性提升15，最大體力增加20，削韌防禦提升10%。",icon:"Images/Icon_NG_BuLuo_ManJiao.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420653",name:"部落・免傷輻射抗性 (Tribe - DMG Immunity & Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居輻射地帶的蠻角族人產生了天然抗性，輻射抗性提升15，傷害減免提升8%，攻擊附加昏迷傷害6。",icon:"Images/Icon_NG_BuLuo_ManJiao.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420703",name:"流放者・炎熱抗性 (Outcast - Scorching Heat Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居炎熱地帶的流放者產生了天然抗性，炎熱抗性提升15。",icon:"Images/Icon_NG_BuLuo_liufangzhe.webp",lv:"3",cooldown:"無",source:"部落天賦"},
+			{ids:"420713",name:"流放者・輻射抗性 (Outcast - Radiation Resist)",category:["部落類"],faction:"通用",job:"通用",desc:"久居輻射地帶的流放者產生了天然抗性，輻射抗性提升15。",icon:"Images/Icon_NG_BuLuo_liufangzhe.webp",lv:"3",cooldown:"無",source:"部落天賦"},
 			
 			// --- 性格類 ---
 			{ids:"300013",name:"性格・溫和 (Personality: Gentle)",category:["性格類"],faction:"通用",job:"通用",desc:"天性溫和，在生活和戰鬥時行為比較正常，做出異常行為的機率較低。",icon:"./Images/Icon_NG_XiHao_WuQi.webp",lv:"3",cooldown:"無",source:"個性天賦"},
@@ -540,19 +557,18 @@
 			{ids:"801143",name:"鍾愛象龜 (Loves tortoise)",category:["嗜好類"],faction:"通用",job:"通用",desc:"附近有象龜時會感到愉快，每隔一段時間獲得60點心情值，並在15分鐘內心情值下降速率降低70%，獲得心情值時提升125%。(在此期間可使心情達到非常愉快狀態)",icon:"./Images/Icon_NG_XiHao_DongWu.webp",lv:"3",cooldown:"無",source:"嗜好天賦"},
 			{ids:"801153",name:"鍾愛巨象 (Loves giant elephant)",category:["嗜好類"],faction:"通用",job:"通用",desc:"附近有巨象時會感到愉快，每隔一段時間獲得60點心情值，並在15分鐘內心情值下降速率降低70%，獲得心情值時提升125%。(在此期間可使心情達到非常愉快狀態)",icon:"./Images/Icon_NG_XiHao_DongWu.webp",lv:"3",cooldown:"無",source:"嗜好天賦"},
 			{ids:"801163",name:"鍾愛動物 (Loves animals)",category:["嗜好類"],faction:"通用",job:"通用",desc:"附近存在任何動物時都會感到愉快，每隔一段時間獲得60點心情值，並在15分鐘內心情值下降速率降低70%，獲得心情值時提升125%。(在此期間可使心情達到非常愉快狀態)",icon:"./Images/Icon_NG_XiHao_DongWu.webp",lv:"3",cooldown:"無",source:"嗜好天賦"}
-			
         ];
 
-        // 狀態管理
+        // 核心狀態
         let selectedFactions = new Set(['全部']);
         let selectedJobs = new Set(['全部']);
+        let pinnedIds = new Set(); // 儲存已勾選的 ID
 
         function setupMultiSelect(containerId, set) {
             const buttons = document.querySelectorAll(`#${containerId} .multi-btn`);
             buttons.forEach(btn => {
                 btn.addEventListener('click', () => {
                     const val = btn.getAttribute('data-value');
-                    
                     if (val === '全部') {
                         set.clear();
                         set.add('全部');
@@ -565,85 +581,109 @@
                             set.add(val);
                         }
                     }
-                    
-                    // 更新 UI 狀態
                     buttons.forEach(b => {
                         const bVal = b.getAttribute('data-value');
                         if (set.has(bVal)) b.classList.add('active');
                         else b.classList.remove('active');
                     });
-                    
                     renderTalents();
                 });
             });
         }
 
+        function togglePin(id) {
+            if (pinnedIds.has(id)) {
+                pinnedIds.delete(id);
+            } else {
+                pinnedIds.add(id);
+            }
+            document.getElementById('pinTotal').innerText = pinnedIds.size;
+            renderTalents();
+        }
+
         function renderTalents() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const categoryValue = document.getElementById('categorySelect').value;
-            
             const grid = document.getElementById('talentGrid');
             const noResults = document.getElementById('noResults');
             const countDisplay = document.getElementById('resultCount');
 
-            const filtered = talents.filter(t => {
-                // 1. 基礎關鍵字搜尋 (AND)
+            // 1. 先分離「已鎖定(置頂)」與「未鎖定」的天賦
+            const pinnedList = talents.filter(t => pinnedIds.has(t.ids));
+            const unpinnedList = talents.filter(t => !pinnedIds.has(t.ids));
+
+            // 2. 對「未鎖定」的部分進行篩選
+            const filteredUnpinned = unpinnedList.filter(t => {
                 const matchSearch = t.name.toLowerCase().includes(searchTerm) || 
                                     t.desc.toLowerCase().includes(searchTerm) ||
                                     t.ids.includes(searchTerm);
                 
-                // 2. 類別篩選 (只要天賦類別陣列中含有選中的類別即可)
                 const matchCategory = categoryValue === "全部" || t.category.includes(categoryValue);
-                
-                // 3. 陣營與職業 (AND 邏輯：必須同時滿足選中的陣營群組與職業群組)
                 const factionMatch = selectedFactions.has('全部') || selectedFactions.has(t.faction);
                 const jobMatch = selectedJobs.has('全部') || selectedJobs.has(t.job);
                 
                 return matchSearch && matchCategory && factionMatch && jobMatch;
             });
 
-            if (filtered.length === 0) {
+            // 3. 合併結果：置頂天賦 + 篩選後的未置頂天賦
+            const finalDisplay = [...pinnedList, ...filteredUnpinned];
+
+            if (finalDisplay.length === 0) {
                 grid.innerHTML = "";
                 noResults.classList.remove('hidden');
             } else {
                 noResults.classList.add('hidden');
-                grid.innerHTML = filtered.map(t => `
-                    <div class="skill-card p-5 rounded-lg flex gap-4 border-l-4 border-l-amber-500/30 hover:border-l-amber-500 animate-fadeIn">
-                        <div class="w-16 h-16 bg-slate-900 rounded flex-shrink-0 border border-slate-700 flex items-center justify-center text-3xl shadow-inner">
-                            <img src="${t.icon}"  alt="這是圖片" title="${t.name}">
-                        </div>
-                        <div class="flex-grow">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h3 class="text-xl font-bold text-white">${t.name}</h3>
-                                    <span class="ids-tag mt-1 inline-block">ID: ${t.ids}</span>
+                grid.innerHTML = finalDisplay.map(t => {
+                    const isPinned = pinnedIds.has(t.ids);
+                    return `
+                        <div class="skill-card p-5 rounded-lg flex gap-4 border-l-4 ${isPinned ? 'pinned border-l-amber-500' : 'border-l-slate-700/30'} animate-fadeIn">
+                            <!-- 勾選框 -->
+                            <div class="flex flex-col items-center justify-center">
+                                <input type="checkbox" class="pin-checkbox" ${isPinned ? 'checked' : ''} onchange="togglePin('${t.ids}')">
+                            </div>
+
+                            <!-- 圖示 -->
+                            <div class="w-16 h-16 bg-slate-900 rounded flex-shrink-0 border border-slate-700 flex items-center justify-center text-3xl shadow-inner">
+                                <img src="${t.icon}" alt="這是圖片" title="${t.name}">
+                            </div>
+
+                            <!-- 內容 -->
+                            <div class="flex-grow">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <h3 class="text-xl font-bold text-white">${t.name}</h3>
+                                            ${isPinned ? '<span class="text-[10px] bg-amber-500 text-black px-1.5 py-0.5 rounded font-black tracking-tighter">LOCKED</span>' : ''}
+                                        </div>
+                                        <span class="ids-tag mt-1 inline-block">ID: ${t.ids}</span>
+                                    </div>
+                                    <div class="flex flex-col items-end gap-1">
+                                        <span class="text-[10px] bg-amber-600/20 text-amber-500 px-2 py-0.5 rounded border border-amber-600/30 font-bold uppercase">${t.faction}</span>
+                                        <div class="flex flex-wrap gap-1 justify-end">
+                                            ${t.category.map(cat => `<span class="text-[10px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded">${cat}</span>`).join('')}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="flex flex-col items-end gap-1">
-                                    <span class="text-[10px] bg-amber-600/20 text-amber-500 px-2 py-0.5 rounded border border-amber-600/30 font-bold uppercase">${t.faction}</span>
-                                    <div class="flex flex-wrap gap-1 justify-end">
-                                        ${t.category.map(cat => `<span class="text-[10px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded">${cat}</span>`).join('')}
+                                <p class="mt-3 text-slate-300 text-sm leading-relaxed bg-slate-900/30 p-2.5 rounded">
+                                    ${t.desc}
+                                </p>
+                                <div class="mt-4 flex justify-between items-center text-[12px]">
+                                    <div class="flex gap-3">
+                                        <span class="text-slate-400">專屬職業：<b class="text-slate-200">${t.job}</b></span>
+										<span class="text-slate-400">LV：<b class="text-slate-200">${t.lv}</b></span>
+										<span class="text-slate-400">冷卻：<b class="text-slate-200">${t.cooldown}</b></span>
+                                    </div>
+                                    <div class="text-slate-500 italic text-[10px]">
+                                        來源: ${t.source}
                                     </div>
                                 </div>
                             </div>
-                            <p class="mt-3 text-slate-300 text-sm leading-relaxed bg-slate-900/30 p-2.5 rounded">
-                                ${t.desc}
-                            </p>
-                            <div class="mt-4 flex justify-between items-center text-[12px]">
-                                <div class="flex gap-3">
-                                    <span class="text-slate-400">專屬職業：<b class="text-slate-200">${t.job}</b></span>
-									<span class="text-slate-400">LV：<b class="text-slate-200">${t.lv}</b></span>
-                                    <span class="text-slate-400">冷卻：<b class="text-slate-200">${t.cooldown}</b></span>
-                                </div>
-                                <div class="text-slate-500 italic text-[10px]">
-                                    來源: ${t.source}
-                                </div>
-                            </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             }
             
-            countDisplay.innerText = `篩選結果：${filtered.length} 項 / 資料庫：${talents.length} 項`;
+            countDisplay.innerText = `目前顯示：${finalDisplay.length} 項 (含鎖定 ${pinnedIds.size} 項)`;
         }
 
         function resetFilters() {
@@ -670,10 +710,8 @@
         document.addEventListener('DOMContentLoaded', () => {
             setupMultiSelect('factionButtons', selectedFactions);
             setupMultiSelect('jobButtons', selectedJobs);
-            
             document.getElementById('searchInput').addEventListener('input', renderTalents);
             document.getElementById('categorySelect').addEventListener('change', renderTalents);
-            
             renderTalents();
         });
     </script>
