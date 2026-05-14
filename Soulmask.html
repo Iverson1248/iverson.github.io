@@ -91,6 +91,12 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
+
+        /* 分享提示框動畫 */
+        #copyToast {
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
@@ -98,12 +104,26 @@
     <nav class="bg-slate-900 border-b border-slate-700 p-4 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <h1 class="text-2xl font-bold text-amber-500">SOULMASK <span class="text-white font-light text-lg ml-2">天賦技能資料庫 更新【2026-05-13】</span></h1>
-            <div class="space-x-6 hidden md:flex text-sm">
-                <span class="text-slate-400">已選定 <span id="pinTotal" class="text-amber-500 font-bold">0</span> 項鎖定天賦</span>
+			<div class="flex items-center space-x-4">
+                <div class="text-right hidden sm:block">
+                    <span class="text-slate-400 text-xs block uppercase">已鎖定</span>
+                    <span id="pinTotal" class="text-amber-500 font-bold">0</span> <span class="text-slate-500 text-xs">項天賦</span>
+                </div>
+                <button onclick="shareSelection()" class="bg-amber-500 hover:bg-amber-600 text-slate-900 px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition shadow-lg active:scale-95">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.5 2.5 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5m-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3"/>
+                    </svg>
+                    分享天賦
+                </button>
             </div>
         </div>
     </nav>
 
+    <!-- 複製成功提示 -->
+    <div id="copyToast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-amber-500 text-slate-900 px-6 py-3 rounded-full font-bold shadow-2xl opacity-0 scale-90 z-[100]">
+        連結已複製到剪貼簿！
+    </div>
+	
     <main class="max-w-7xl mx-auto p-6">
         <section class="mb-8 bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700">
             <div class="space-y-6">
@@ -556,6 +576,56 @@
         let selectedFactions = new Set(['全部']);
         let selectedJobs = new Set(['全部']);
         let pinnedIds = new Set(); // 儲存已勾選的 ID
+		
+        // 新增：處理網址參數
+        function initFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const idsParam = urlParams.get('ids');
+            if (idsParam) {
+                const ids = idsParam.split(',');
+                ids.forEach(id => {
+                    // 確保 id 存在於資料庫中才加入
+                    if (talents.some(t => t.ids === id.trim())) {
+                        pinnedIds.add(id.trim());
+                    }
+                });
+                document.getElementById('pinTotal').innerText = pinnedIds.size;
+            }
+        }
+
+        // 新增：分享功能
+        function shareSelection() {
+            if (pinnedIds.size === 0) {
+                showToast("請先勾選想要置頂的天賦再分享！");
+                return;
+            }
+
+            const ids = Array.from(pinnedIds).join(',');
+            const baseUrl = window.location.origin + window.location.pathname;
+            const shareUrl = `${baseUrl}?ids=${ids}`;
+
+            // 複製到剪貼簿 (使用相容性較好的方式)
+            const el = document.createElement('textarea');
+            el.value = shareUrl;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            showToast("分享連結已複製到剪貼簿！");
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('copyToast');
+            toast.innerText = msg;
+            toast.style.opacity = '1';
+            toast.style.transform = 'translate(-50%, 0) scale(1)';
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translate(-50%, 0) scale(0.9)';
+            }, 3000);
+        }
 
         function setupMultiSelect(containerId, set) {
             const buttons = document.querySelectorAll(`#${containerId} .multi-btn`);
@@ -637,7 +707,7 @@
 
                             <!-- 圖示 -->
                             <div class="w-16 h-16 bg-slate-900 rounded flex-shrink-0 border border-slate-700 flex items-center justify-center text-3xl shadow-inner">
-                                <img src="${t.icon}" alt="這是圖片" title="${t.name}">
+                                <img src="${t.icon}" alt="圖示" onerror="this.src='https://placehold.co/64x64/0f172a/f59e0b?text=Icon'" title="${t.name}">
                             </div>
 
                             <!-- 內容 -->
@@ -701,6 +771,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            // 先初始化參數再渲染
+            initFromUrl();
             setupMultiSelect('factionButtons', selectedFactions);
             setupMultiSelect('jobButtons', selectedJobs);
             document.getElementById('searchInput').addEventListener('input', renderTalents);
