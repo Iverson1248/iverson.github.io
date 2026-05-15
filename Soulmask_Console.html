@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<script src="https://saraserenity.net/soulmask/script/main.js"></script>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <meta name="description" content="Details about admin console commands for the game Soulmask.">
+
+    <title>Soulmask Console Commands</title>
+
+    <link rel="stylesheet" href="https://saraserenity.net/css/normalize.css">
+    <link rel="stylesheet" href="https://saraserenity.net/css/main.css">
+    <script>
+        window.addEventListener('DOMContentLoaded', function() { toc('Console Commands') });
+    </script>
+</head>
+<body>
+<div class="page">
+	<div class="nav-container">
+		<script src="https://saraserenity.net/script/nav.js"></script>
+		<div class="nav-header">
+			<a href="https://saraserenity.net/soulmask"><img width="180" height="74" alt="Soulmask Guides" src="https://saraserenity.net/soulmask/img/guidelogo_sm.webp"></a>
+		</div>
+		<div id="page_nav"></div>
+	</div>
+	<div class="page-container">
+		<div class="page-content">
+			<div class="page-section">
+			<h1 class="title">Soulmask 控制台指令</h1>
+			
+			<P>打開控制台</P>
+			<pre>~</pre>
+			<P>修改GM管理密碼的方法</P>
+			<P>在STAEM靈魂面甲遊戲頁面的齒輪 ▶內容 ▶ 一般 ▶ 進階使用者可選擇修改啟動選項</P>
+			<P>輸入 -adminpsw=123456【123456可替換成其他數字】</P>
+			
+			
+			<p>若要以管理員身分登入，您需要輸入以下控制台命令</p>
+			<pre>GM KEY adminPsw</pre>
+			<p>範例</p>
+			<pre>GM KEY 123456</pre>
+			
+			<P>解鎖全地圖</P>
+			<pre>GM ShowMap</pre>
+			<P>解鎖全科技</P>
+			<pre>GM KejiShu</pre>
+			
+			<P>快速傳送</P>
+			<code>打開地圖 Ctrl + 對地圖位置點滑鼠右鍵。</code>
+			<P>傳送</P>
+			<code>XYZ代表特定座標。按M鍵開啟地圖，然後按F鍵顯示座標。</code>
+			<pre>GM GO [position_x] [position_y] [position_z]</pre>
+			<P>隱身</P>
+			<code>遇到Boss還是會被看破</code>
+			<pre>GM SetAttr YinShen 1</pre>
+			
+			<P>強制招募野人</P>
+			<code>目標：準星對準的生物 輸入</code>
+			<pre>GM ZhaoMu</pre>
+			<pre>GM recruit</pre>
+			
+			
+			
+			
+			<P>選擇目標</P>
+			<pre>GM Select</pre>
+			<P>清除選擇目標</P>
+			<pre>GM ClearSelect</pre>
+			
+			<P>剝奪所有天賦</P>
+			<pre>GM CLEARNG</pre>
+			
+			
+			<P>給族人增加天賦</P>
+			<code>AddNG NGId[int] bGood[bool] InLvl[int]</code>
+			<ul>
+				<li>
+					<font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">NGId：要新增的天賦的ID。</font></font>
+				</li>
+				<li>
+					<font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">bGood：指定該天賦要設定類型。</font></font>
+					<ul>
+						<li><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">0：負面天賦，升級時有可能被遺忘。</font></font></li>
+						<li><font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">1：能夠長期留任的天賦。</font></font></li>
+					</ul>	
+				</li>
+				<li>
+					<font dir="auto" style="vertical-align: inherit;"><font dir="auto" style="vertical-align: inherit;">InLvl：等級達到才會觸發。</font></font>
+				</li>
+			</ul>
+			<pre>GM AddNG 100013 1 0</pre>
+			
+			
+			
+			<p>NGId 參考：<a target="_blank" href="https://iverson1248.github.io/iverson.github.io/Soulmask.html">天賦表</a></p>
+
+		</div>
+		</div>
+	</div>
+
+</div>
+</body>
+</html>
