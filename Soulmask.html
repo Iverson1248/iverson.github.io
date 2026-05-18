@@ -103,27 +103,60 @@
 
     <nav class="bg-slate-900 border-b border-slate-700 p-4 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-amber-500">SOULMASK <span class="text-white font-light text-lg ml-2">天賦技能資料庫 更新【2026-05-14】</span></h1>
-			<div class="flex items-center space-x-4">
+            <h1 class="text-2xl font-bold text-amber-500">SOULMASK <span class="text-white font-light text-lg ml-2 md:inline hidden">天賦技能資料庫 更新【2026-05-18】</span></h1>
+            <div class="flex items-center space-x-3 sm:space-x-4">
                 <div class="text-right hidden sm:block">
                     <span class="text-slate-400 text-xs block uppercase">已鎖定</span>
                     <span id="pinTotal" class="text-amber-500 font-bold">0</span> <span class="text-slate-500 text-xs">項天賦</span>
                 </div>
-                <button onclick="shareSelection()" class="bg-amber-500 hover:bg-amber-600 text-slate-900 px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition shadow-lg active:scale-95">
+                <!-- GM 指令產生器按鈕 -->
+                <button onclick="openGmModal()" class="border border-amber-500 hover:bg-amber-500/10 text-amber-500 px-3 py-2 rounded-lg font-bold text-sm flex items-center gap-1.5 transition active:scale-95 shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M9.164.03a.5.5 0 0 1 .59.36l.3 1.134a6.96 6.96 0 0 1 1.228.498l1.114-.413a.5.5 0 0 1 .632.305l.592 1.625a.5.5 0 0 1-.252.617l-.986.522c.07.311.1.629.1.952s-.03.64-.1.951l.986.523a.5.5 0 0 1 .252.616l-.592 1.625a.5.5 0 0 1-.632.305l-1.114-.413a6.96 6.96 0 0 1-1.228.498l-.3 1.134a.5.5 0 0 1-.59.36l-1.64-.32a.5.5 0 0 1-.38-.49V12a5 5 0 1 1 1 0v.16a.5.5 0 0 1-.38.49l-1.64.32a.5.5 0 0 1-.59-.36l-.3-1.134a6.96 6.96 0 0 1-1.228-.498l-1.114.413a.5.5 0 0 1-.632-.305L.03 9.164a.5.5 0 0 1 .252-.617l.986-.522A6.96 6.96 0 0 1 1.17 7c0-.323.03-.641.1-.952l-.986-.522a.5.5 0 0 1-.252-.617l.592-1.625A.5.5 0 0 1 1.25 3.2l1.114.413a6.96 6.96 0 0 1 1.228-.498l.3-1.134a.5.5 0 0 1 .59-.36l1.64.32a.5.5 0 0 1 .38.49V4a5 5 0 1 1-1 0V3.81a.5.5 0 0 1 .38-.49l1.64-.32zM8 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/>
+                    </svg>
+                    GM 指令
+                </button>
+                <button onclick="shareSelection()" class="bg-amber-500 hover:bg-amber-600 text-slate-900 px-3 py-2 rounded-lg font-bold text-sm flex items-center gap-1.5 transition shadow-lg active:scale-95">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.5 2.5 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5m-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3"/>
                     </svg>
-                    分享天賦
+                    分享網址
                 </button>
             </div>
         </div>
     </nav>
 
+    <!-- 置中面版（GM 指令 Modal） -->
+    <div id="gmModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] hidden p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-xl w-full max-w-lg shadow-2xl relative animate-fadeIn flex flex-col max-h-[90vh]">
+            <!-- 標題欄 -->
+            <div class="flex justify-between items-center border-b border-slate-700 p-5">
+                <h3 class="text-lg font-bold text-amber-500 flex items-center gap-2">
+                    <span>🛠️ 已鎖定天賦 GM 指令清單</span>
+                </h3>
+                <button onclick="closeGmModal()" class="text-slate-400 hover:text-white transition-colors text-2xl font-semibold leading-none">&times;</button>
+            </div>
+            
+            <!-- 內容區 -->
+            <div id="gmModalContent" class="p-5 space-y-3 overflow-y-auto flex-grow text-sm">
+                <!-- JavaScript 動態填入 -->
+            </div>
+            
+            <!-- 底部按鈕區 -->
+            <div class="border-t border-slate-700 p-4 flex justify-between items-center bg-slate-800/50 rounded-b-xl">
+                <span class="text-xs text-slate-400 font-mono" id="gmModalSummary">已選擇：0 項</span>
+                <button onclick="closeGmModal()" class="bg-slate-700 hover:bg-slate-600 text-white px-5 py-2 rounded-lg font-bold text-sm transition-all active:scale-95">
+                    關閉面板
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- 複製成功提示 -->
-    <div id="copyToast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-amber-500 text-slate-900 px-6 py-3 rounded-full font-bold shadow-2xl opacity-0 scale-90 z-[100]">
+    <div id="copyToast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-amber-500 text-slate-900 px-6 py-3 rounded-full font-bold shadow-2xl opacity-0 scale-90 z-[101]">
         連結已複製到剪貼簿！
     </div>
-	
+
     <main class="max-w-7xl mx-auto p-6">
         <section class="mb-8 bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700">
             <div class="space-y-6">
@@ -142,9 +175,9 @@
 							<option value="經歷類">經歷類</option>
 							<option value="稱號類">稱號類</option>
 							<option value="嗜好類">嗜好類</option>
-                            <option value="戰鬥類">戰鬥類</option>
-                            <option value="通用類">通用類</option>
-                            <option value="工作類">工作類</option>
+                            <option value="戰鬥類">一般天賦-戰鬥類</option>
+                            <option value="通用類">一般天賦-通用類</option>
+                            <option value="工作類">一般天賦-工作類</option>
                         </select>
                     </div>
                 </div>
@@ -340,7 +373,7 @@
 			{"ids": "100023","name": "攻勢凌厲","enname": "Fierce Attack","category": ["戰鬥類"],"faction": "通用","job": "通用","desc": "攻勢凌厲，攻速提升9%","icon": "./Images/tianfu_gongjisudutisheng.webp","lv": "3","cooldown": "無","source": "一般天賦"},
 			{"ids": "100033","name": "強力攻擊","enname": "Powerful Attack","category": ["戰鬥類"],"faction": "通用","job": "通用","desc": "天生蠻力，攻擊力提升9%","icon": "./Images/tianfu_gongjilitisheng.webp","lv": "3","cooldown": "無","source": "一般天賦"},
 			{"ids": "100043","name": "強化防禦","enname": "Enhance DEF","category": ["戰鬥類"],"faction": "通用","job": "通用","desc": "防禦能力異於常人，防禦力提升9%","icon": "./Images/tianfu_fangyutisheng.webp","lv": "3","cooldown": "無","source": "一般天賦"},
-			{"ids": "100053","name": "减輕傷勢","enname": "Injury Relieve","category": ["戰鬥類"],"faction": "通用","job": "通用","desc": "皮糙肉厚天生抗揍，受到傷害降低9%","icon": "./Images/tianfu_shanghaijianmiantisheng.webp","lv": "3","cooldown": "無","source": "一般天賦"},
+			{"ids": "100053","name": "減輕傷勢","enname": "Injury Relieve","category": ["戰鬥類"],"faction": "通用","job": "通用","desc": "皮糙肉厚天生抗揍，受到傷害降低9%","icon": "./Images/tianfu_shanghaijianmiantisheng.webp","lv": "3","cooldown": "無","source": "一般天賦"},
 			{"ids": "100063","name": "氣血充盈","enname": "Full Vitality","category": ["戰鬥類"],"faction": "通用","job": "通用","desc": "面色紅潤有光澤,最大生命提升9%","icon": "./Images/tianfu_shengmingzhitisheng.webp","lv": "3","cooldown": "無","source": "一般天賦"},
 			{"ids": "100073","name": "步履輕盈","enname": "Light Footsteps","category": ["戰鬥類"],"faction": "通用","job": "通用","desc": "腳步輕盈，移動時腳步聲音降低50%","icon": "./Images/tianfu_bulvqingying.webp","lv": "3","cooldown": "無","source": "一般天賦"},
 			{"ids": "100083","name": "悄無聲息","enname": "Without a Sound","category": ["戰鬥類"],"faction": "通用","job": "通用","desc": "輕手輕腳，發出所有聲音降低50%","icon": "./Images/tianfu_qiaowushengxi.webp","lv": "3","cooldown": "無","source": "一般天賦"},
@@ -576,8 +609,8 @@
         let selectedFactions = new Set(['全部']);
         let selectedJobs = new Set(['全部']);
         let pinnedIds = new Set(); // 儲存已勾選的 ID
-		
-        // 新增：處理網址參數
+
+        // 處理網址參數
         function initFromUrl() {
             const urlParams = new URLSearchParams(window.location.search);
             const idsParam = urlParams.get('ids');
@@ -593,7 +626,7 @@
             }
         }
 
-        // 新增：分享功能
+        // 分享功能
         function shareSelection() {
             if (pinnedIds.size === 0) {
                 showToast("請先勾選想要置頂的天賦再分享！");
@@ -604,15 +637,94 @@
             const baseUrl = window.location.origin + window.location.pathname;
             const shareUrl = `${baseUrl}?ids=${ids}`;
 
-            // 複製到剪貼簿 (使用相容性較好的方式)
+            // 複製到剪貼簿
+            copyTextToClipboard(shareUrl);
+            showToast("分享連結已複製到剪貼簿！");
+        }
+
+        // 面板操作：開啟 GM 面板
+        function openGmModal() {
+            const modal = document.getElementById('gmModal');
+            const content = document.getElementById('gmModalContent');
+            const summary = document.getElementById('gmModalSummary');
+            
+            summary.innerText = `已鎖定：${pinnedIds.size} 項`;
+
+            if (pinnedIds.size === 0) {
+                content.innerHTML = `
+                    <div class="text-center py-8 text-slate-400">
+                        <div class="text-4xl mb-2">📌</div>
+                        <p>目前沒有鎖定的天賦，請先在主頁勾選天賦再打開此面板。</p>
+                    </div>
+                `;
+            } else {
+                const pinnedTalents = talents.filter(t => pinnedIds.has(t.ids));
+                
+                // 1. 產生最上方的「預設清除所有天賦」指令區塊
+                const clearBlockHtml = `
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-red-950/40 p-3.5 rounded-lg border border-red-500/30 mb-4 animate-fadeIn">
+                        <div class="flex-grow">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="font-bold text-red-400 flex items-center gap-1">
+                                    <span>🧹</span> 清除所有天賦【沒指定族人就是清除操控的族人】
+                                </span>
+                            </div>
+                            <code id="cmd-clear-all" class="text-red-300 font-mono text-xs block bg-black/40 p-2 rounded border border-red-950/50 select-all break-all">GM ClearNG</code>
+                        </div>
+                        <button onclick="copySingleCommand('clear-all', 'GM ClearNG')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded font-bold text-xs whitespace-nowrap active:scale-95 transition-all self-end sm:self-center shadow-md">
+                            複製指令
+                        </button>
+                    </div>
+                    <div class="text-xs text-slate-400 font-semibold uppercase tracking-wider mb-2 pl-1 border-l-2 border-amber-500/50">個別天賦指令：</div>
+                `;
+
+                // 2. 產生個別置頂天賦的指令列表
+                const listHtml = pinnedTalents.map(t => {
+                    const cmdStr = `GM AddNG ${t.ids} 1 0`;
+                    return `
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-900 p-3.5 rounded-lg border border-slate-700/50 animate-fadeIn">
+                            <div class="flex-grow">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-bold text-white">${t.name}</span>
+                                    <span class="text-[10px] text-slate-400 font-mono bg-slate-800 px-1.5 py-0.5 rounded">ID: ${t.ids}</span>
+                                </div>
+                                <code id="cmd-${t.ids}" class="text-amber-400 font-mono text-xs block bg-black/40 p-2 rounded border border-slate-800 select-all break-all">${cmdStr}</code>
+                            </div>
+                            <button onclick="copySingleCommand('${t.ids}', '${cmdStr}')" class="bg-amber-500 hover:bg-amber-600 text-slate-900 px-3 py-1.5 rounded font-bold text-xs whitespace-nowrap active:scale-95 transition-all self-end sm:self-center">
+                                複製指令
+                            </button>
+                        </div>
+                    `;
+                }).join('<div class="h-2"></div>');
+
+                content.innerHTML = clearBlockHtml + listHtml;
+            }
+            
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // 防止背景滾動
+        }
+
+        // 面板操作：關閉 GM 面板
+        function closeGmModal() {
+            const modal = document.getElementById('gmModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = ''; // 恢復滾動
+        }
+
+        // 單獨複製 GM 指令
+        function copySingleCommand(id, cmd) {
+            copyTextToClipboard(cmd);
+            showToast(`已複製指令：${cmd}`);
+        }
+
+        // 核心剪貼簿複製常式 (因 iframe 限制，此法相容性最優)
+        function copyTextToClipboard(text) {
             const el = document.createElement('textarea');
-            el.value = shareUrl;
+            el.value = text;
             document.body.appendChild(el);
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
-
-            showToast("分享連結已複製到剪貼簿！");
         }
 
         function showToast(msg) {
